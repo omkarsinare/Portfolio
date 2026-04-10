@@ -1,11 +1,28 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
-import { motion, useMotionValue, useSpring, animate, useInView, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { motion, useMotionValue, useSpring, animate, useInView } from "framer-motion";
+import { useState, useEffect, useRef, ReactNode } from "react";
 import Typewriter from 'typewriter-effect';
 
-// --- CUSTOM SVG ICONS (Internal to ensure they always load) ---
+// --- TYPES ---
+interface MagneticProps {
+    children: ReactNode;
+    distance?: number;
+}
+
+interface CounterProps {
+    value: number;
+    suffix?: string;
+}
+
+interface Skill {
+    name: string;
+    level: string;
+    icon: string;
+}
+
+// --- CUSTOM SVG ICONS ---
 const Icons = {
     Linkedin: () => (
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect width="4" height="12" x="2" y="9" /><circle cx="4" cy="4" r="2" /></svg>
@@ -28,15 +45,15 @@ const Icons = {
 };
 
 // --- HELPER: MAGNETIC EFFECT ---
-const Magnetic = ({ children, distance = 0.5 }) => {
+const Magnetic = ({ children, distance = 0.5 }: MagneticProps) => {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     const springX = useSpring(mouseX, { stiffness: 150, damping: 15 });
     const springY = useSpring(mouseY, { stiffness: 150, damping: 15 });
 
-    const handleMouseMove = (e) => {
-        const { clientX, clientY, target } = e;
-        const { left, top, width, height } = target.getBoundingClientRect();
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const { clientX, clientY, currentTarget } = e;
+        const { left, top, width, height } = currentTarget.getBoundingClientRect();
         const centerX = left + width / 2;
         const centerY = top + height / 2;
         mouseX.set((clientX - centerX) * distance);
@@ -53,8 +70,8 @@ const Magnetic = ({ children, distance = 0.5 }) => {
 };
 
 // --- HELPER: COUNTING NUMBER ---
-const Counter = ({ value, suffix = "" }) => {
-    const ref = useRef(null);
+const Counter = ({ value, suffix = "" }: CounterProps) => {
+    const ref = useRef<HTMLSpanElement>(null);
     const inView = useInView(ref, { once: true });
     const [count, setCount] = useState(0);
 
@@ -72,7 +89,7 @@ const Counter = ({ value, suffix = "" }) => {
 };
 
 // --- SKILL DATA ---
-const skills = [
+const skills: Skill[] = [
     { name: "Python", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" },
     { name: "TensorFlow", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg" },
     { name: "PyTorch", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg" },
@@ -80,7 +97,6 @@ const skills = [
     { name: "AWS", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" },
     { name: "Git", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" },
     { name: "Java", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" },
-    // STREAMLIT FIXED ICON
     { name: "Streamlit", level: "Advanced", icon: "https://cdn.simpleicons.org/streamlit/FF4B4B" },
     { name: "Pandas", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg" },
     { name: "NumPy", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg" },
@@ -95,7 +111,7 @@ export default function Home() {
     const springY = useSpring(mouseY, { stiffness: 100, damping: 25 });
 
     useEffect(() => {
-        const handleMouseMove = (e) => {
+        const handleMouseMove = (e: MouseEvent) => {
             mouseX.set(e.clientX);
             mouseY.set(e.clientY);
         };
@@ -178,7 +194,6 @@ export default function Home() {
                 <section id="experience" className="scroll-mt-24">
                     <h2 className="text-[10px] tracking-[1em] uppercase opacity-30 mb-16 text-center">Experience</h2>
                     <div className="grid md:grid-cols-2 gap-8">
-                        {/* Open Links Foundation */}
                         <motion.div whileHover={{ y: -5 }} className={`p-8 rounded-3xl border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-50 border-black/5"} shadow-sm transition-all`}>
                             <div className="flex flex-col items-start gap-6">
                                 <div className="w-20 h-20 rounded-full flex items-center justify-center p-2 bg-white overflow-hidden shadow-inner"><img src="https://www.openlinksfoundation.org/images/openlinksFoundationsLogo.png" alt="Open Links" className="w-full h-auto object-contain" /></div>
@@ -196,7 +211,6 @@ export default function Home() {
                                 </div>
                             </div>
                         </motion.div>
-                        {/* TechnoHacks */}
                         <motion.div whileHover={{ y: -5 }} className={`p-8 rounded-3xl border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-50 border-black/5"} shadow-sm transition-all`}>
                             <div className="flex flex-col items-start gap-6">
                                 <div className="w-20 h-20 rounded-full flex items-center justify-center p-4 bg-white overflow-hidden shadow-inner"><img src="https://technohacks.co.in/wp-content/uploads/2024/08/cropped-png-transperant-Copy-1.png" alt="TechnoHacks" className="w-full h-auto object-contain" /></div>
@@ -278,7 +292,7 @@ export default function Home() {
                                 <input type="email" placeholder="Email" className={`p-4 rounded-xl border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-50 border-black/10"} outline-none focus:border-cyan-500 transition-all text-sm`} />
                             </div>
                             <textarea placeholder="Message" rows={5} className={`w-full p-4 rounded-xl border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-50 border-black/10"} outline-none focus:border-cyan-500 transition-all text-sm resize-none`} />
-                            <button className="w-full py-4 rounded-xl bg-cyan-600 text-white font-bold uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-cyan-500 transition-all">Send Message <Icons.Send /></button>
+                            <button type="button" className="w-full py-4 rounded-xl bg-cyan-600 text-white font-bold uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-cyan-500 transition-all">Send Message <Icons.Send /></button>
                         </form>
                     </div>
                 </section>
