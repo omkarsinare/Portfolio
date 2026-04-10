@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OnkarSinare|Portfolio",
+  title: "Onkar Sinare | Portfolio",
   description: "Data Analyst & Automation Engineer Portfolio",
 };
 
