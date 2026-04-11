@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useMotionValue, useSpring, animate, useInView, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring, animate, useInView } from "framer-motion";
 import { useState, useEffect, useRef, ReactNode } from "react";
 import Typewriter from 'typewriter-effect';
 
@@ -129,30 +129,25 @@ const ProjectCard = ({ project, dark, onImageClick }: { project: any, dark: bool
 
                     {project.hasArchitecture && (
                         <div className="space-y-8">
-                            <h4 className="text-[10px] tracking-[0.4em] font-black uppercase text-cyan-500 opacity-80 mb-6 text-center md:text-left">Project Architecture & Workflow</h4>
+                            <h4 className="text-[10px] tracking-[0.4em] font-black uppercase text-cyan-500 opacity-80 mb-6 text-center">Project Architecture & Workflow</h4>
                             
-                            <div className={`grid gap-8 ${project.img1 && project.img2 ? "grid-cols-1 md:grid-cols-2" : "max-w-2xl mx-auto"}`}>
-                                {[project.img1, project.img2].filter(Boolean).map((img, i) => (
-                                    <div key={i} className="space-y-4">
-                                        <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest text-center">
-                                            {project.img2 ? (i === 0 ? "Workflow / Pipeline" : "System Architecture") : "Architecture Overview"}
-                                        </p>
-                                        <div 
-                                            onClick={() => onImageClick(img)}
-                                            className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-white/5 cursor-zoom-in group/img shadow-2xl"
-                                        >
-                                            <Image 
-                                                src={img} 
-                                                alt="Architecture Diagram" 
-                                                fill 
-                                                className="object-contain p-4 group-hover/img:scale-105 transition-transform duration-700" 
-                                            />
-                                            <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
-                                                <span className="opacity-0 group-hover/img:opacity-100 bg-cyan-500 text-white text-[9px] font-black uppercase tracking-tighter px-3 py-1 rounded-full shadow-2xl transition-opacity">Click to Expand</span>
-                                            </div>
-                                        </div>
+                            {/* Standardized Layout for Single Portrait Images */}
+                            <div className="max-w-xl mx-auto space-y-4">
+                                <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest text-center">System Architecture Overview</p>
+                                <div 
+                                    onClick={() => onImageClick(project.img1)}
+                                    className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-white shadow-2xl cursor-zoom-in group/img"
+                                >
+                                    <Image 
+                                        src={project.img1} 
+                                        alt="Architecture Diagram" 
+                                        fill 
+                                        className="object-contain p-4 transition-transform duration-700 group-hover/img:scale-105" 
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
+                                        <span className="opacity-0 group-hover/img:opacity-100 bg-cyan-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-xl transition-opacity">Click to Enlarge</span>
                                     </div>
-                                ))}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -182,18 +177,20 @@ export default function Home() {
     }, [mouseX, mouseY]);
 
     useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelectedImg(null); };
+        window.addEventListener('keydown', handleEsc);
         const sections = document.querySelectorAll("section[id]");
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) setActiveSection(entry.target.id);
-                });
-            },
-            { threshold: 0.4 }
-        );
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => { if (entry.isIntersecting) setActiveSection(entry.target.id); });
+        }, { threshold: 0.4 });
         sections.forEach((section) => observer.observe(section));
-        return () => sections.forEach((section) => observer.unobserve(section));
+        return () => {
+            sections.forEach((section) => observer.unobserve(section));
+            window.removeEventListener('keydown', handleEsc);
+        };
     }, []);
+
+    const emojiFilter = dark ? "brightness(1.2)" : "brightness(0.9)";
 
     const projectData = [
         { 
@@ -207,8 +204,21 @@ export default function Home() {
                 "Performed feature engineering to isolate top 10 impactful features, lowering computational latency.",
                 "Outcome: High-performance real-time system flagging malicious activity with optimized model efficiency."
             ],
-            img1: "/cyber-arch-1.png",
-            img2: "/cyber-arch-2.png"
+            // Path References '/public/p1.png'
+            img1: "/p1.png"
+        },
+        { 
+            title: "Intelligent Name Matching System", 
+            desc: "Developed token-based fuzzy matching algorithm in Google Apps Script that outperformed standard lookup functions.", 
+            tags: ["Google Apps Script", "Automation", "DBMS"],
+            hasArchitecture: true,
+            details: [
+                "scholarship data tool handling 300,000+ rows, improving processing speed by 80%",
+                "Automated reporting workflows, reducing manual effort by 40%",
+                "Designed an end-to-end exam system including center allocation and hall ticket generation"
+            ],
+            // Path References '/public/p2.png'
+            img1: "/p2.png"
         },
         { 
             title: "Vinoba Platform Automation", 
@@ -220,6 +230,7 @@ export default function Home() {
                 "Fuzzy Matching System: Developed token-based algorithm in GAS reducing manual effort by 40%.",
                 "Exam System: End-to-end management for center allocation, roll numbers, and digital admit cards."
             ],
+            // Path References '/public/Exam-system.png'
             img1: "/Exam-system.png"
         }
     ];
@@ -230,37 +241,26 @@ export default function Home() {
             {/* CURSOR GLOW */}
             <motion.div className="pointer-events-none fixed inset-0 z-30 opacity-40" style={{ background: `radial-gradient(600px circle at ${springX}px ${springY}px, ${dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)"}, transparent 80%)` }} />
 
-            {/* HOME BUTTON */}
+            {/* Navigation and Hero Sections Stay the Same */}
             <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">
                 <Magnetic distance={0.3}>
-                    <button aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 shadow-2xl transition-all ${dark ? "bg-neutral-900 border-white/20 text-cyan-500 hover:border-cyan-500" : "bg-neutral-100 border-black/20 text-cyan-600 hover:border-cyan-600"}`}>
-                        <Icons.Home />
-                    </button>
+                    <button aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 shadow-2xl transition-all ${dark ? "bg-neutral-900 border-white/20 text-cyan-500 hover:border-cyan-500" : "bg-neutral-100 border-black/20 text-cyan-600 hover:border-cyan-600"}`}><Icons.Home /></button>
                 </Magnetic>
             </div>
-
-            {/* TOGGLE BUTTON */}
             <div className="fixed top-6 right-6 z-50">
                 <Magnetic distance={0.2}>
-                    <button onClick={() => setDark(!dark)} className={`px-4 py-1.5 md:px-6 md:py-2 rounded-full border text-[9px] md:text-[10px] tracking-widest uppercase transition-all backdrop-blur-md font-bold ${dark ? "border-white/20 text-white hover:bg-white/10" : "border-black/40 text-black hover:bg-black/10"}`}>
-                        {dark ? "Light" : "Dark"}
-                    </button>
+                    <button onClick={() => setDark(!dark)} className={`px-4 py-1.5 md:px-6 md:py-2 rounded-full border text-[9px] md:text-[10px] tracking-widest uppercase transition-all backdrop-blur-md font-bold ${dark ? "border-white/20 text-white hover:bg-white/10" : "border-black/40 text-black hover:bg-black/10"}`}>{dark ? "Light" : "Dark"}</button>
                 </Magnetic>
             </div>
-
-            {/* HERO SECTION */}
             <section id="home" className="relative w-full max-w-7xl flex flex-col items-center justify-center min-h-[70vh] md:min-h-screen py-10 md:py-20 scroll-mt-24">
                 <div key={dark ? "d" : "l"} className="relative flex items-center justify-center mb-8 md:mb-16">
                     {[0, 1, 2].map((i) => (
                         <motion.div key={i} className={`absolute rounded-full border-2 ${dark ? "border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "border-black/80 shadow-[0_0_20px_rgba(0,0,0,0.1)]"}`} style={{ width: 160, height: 160 }} initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: [0.5, 1.2, 8], opacity: [0, dark ? 0.5 : 0.4, 0] }} transition={{ duration: 8, repeat: Infinity, delay: i * 2.5, ease: [0.21, 0.85, 0.45, 1], times: [0, 0.1, 1] }} />
                     ))}
                     <motion.div whileHover={{ scale: 1.05 }} className="relative z-10">
-                        <div className={`rounded-full p-1 border-2 ${dark ? "border-white/20" : "border-black/20"}`}>
-                             <Image src="/profile.jpg" alt="Omkar Sinare" width={140} height={140} className={`rounded-full object-cover border-4 relative z-20 ${dark ? "border-white" : "border-black"} shadow-2xl md:w-[170px] md:h-[170px]`} priority />
-                        </div>
+                        <div className={`rounded-full p-1 border-2 ${dark ? "border-white/20" : "border-black/20"}`}><Image src="/profile.jpg" alt="Omkar Sinare" width={140} height={140} className={`rounded-full object-cover border-4 relative z-20 ${dark ? "border-white" : "border-black"} shadow-2xl md:w-[170px] md:h-[170px]`} priority /></div>
                     </motion.div>
                 </div>
-
                 <div className="flex flex-col items-center text-center w-full px-6 z-20">
                     <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} className="tracking-[0.4em] md:tracking-[0.6em] text-[10px] md:text-xs uppercase font-bold mb-4 md:mb-6">Data Analyst & Automation Engineer</motion.p>
                     <div className="h-[100px] md:h-[150px] flex items-center justify-center">
@@ -268,17 +268,9 @@ export default function Home() {
                             <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> 👋`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records 📊`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> 🛡️`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation ⚡`).pauseFor(1000).deleteAll().typeString(`Driven by data and a <span style="color: #06b6d4;">Cappuccino</span> ☕`).pauseFor(2000).start(); }} />
                         </div>
                     </div>
-                    
                     <nav className="flex flex-wrap justify-center gap-3 md:gap-8 mt-10 md:mt-24">
                         {["ABOUT", "EXPERIENCE", "SKILLS", "PROJECTS", "CONTACT"].map((item) => (
-                            <Magnetic key={item} distance={0.25}>
-                                <a href={`#${item.toLowerCase()}`}>
-                                    <button className={`px-4 py-2 md:px-7 md:py-2.5 rounded-full border text-[8px] md:text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 backdrop-blur-md relative overflow-hidden group ${dark ? "border-white/10 text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.03)] hover:border-cyan-500/50" : "border-black/10 text-black bg-black/5 shadow-[0_0_15px_rgba(0,0,0,0.03)] hover:border-cyan-600/50"} ${activeSection === item.toLowerCase() ? "border-cyan-500/80 !text-cyan-400" : ""}`}>
-                                        <span className="relative z-10 group-hover:text-cyan-500 transition-colors duration-300">{item}</span>
-                                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${dark ? "bg-cyan-500/5" : "bg-cyan-600/5"}`} />
-                                    </button>
-                                </a>
-                            </Magnetic>
+                            <Magnetic key={item} distance={0.25}><a href={`#${item.toLowerCase()}`}><button className={`px-4 py-2 md:px-7 md:py-2.5 rounded-full border text-[8px] md:text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 backdrop-blur-md relative overflow-hidden group ${dark ? "border-white/10 text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.03)] hover:border-cyan-500/50" : "border-black/10 text-black bg-black/5 shadow-[0_0_15px_rgba(0,0,0,0.03)] hover:border-cyan-600/50"} ${activeSection === item.toLowerCase() ? "border-cyan-500/80 !text-cyan-400" : ""}`}><span className="relative z-10 group-hover:text-cyan-500 transition-colors duration-300">{item}</span><div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${dark ? "bg-cyan-500/5" : "bg-cyan-600/5"}`} /></button></a></Magnetic>
                         ))}
                     </nav>
                 </div>
@@ -286,87 +278,32 @@ export default function Home() {
 
             {/* CONTENT WRAPPER */}
             <div className="w-full max-w-5xl px-6 space-y-24 md:space-y-60 py-10 md:py-40 relative z-20">
-
                 <section id="about" className="scroll-mt-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
                     <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="md:pr-12">
                         <h2 className="text-3xl md:text-5xl font-bold mb-6 italic">Summary</h2>
                         <p className="text-base md:text-xl leading-relaxed opacity-70 font-medium">I am a Data Engineer and Automation Specialist dedicated to solving operational bottlenecks. From processing 300k+ row datasets to building custom "AI-like" fuzzy matching engines, I transform manual chaos into scalable, automated systems.</p>
                     </motion.div>
-                    
                     <div className="flex flex-row gap-8 md:gap-16 justify-between md:justify-end items-start md:pt-20">
-                        <div className="flex flex-col">
-                            <span className="text-3xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={300000} suffix="+" /></span>
-                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Rows Handled</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-3xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={40} suffix="%" /></span>
-                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Manual Effort Saved</span>
-                        </div>
+                        <div className="flex flex-col"><span className="text-3xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={300000} suffix="+" /></span><span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Rows Handled</span></div>
+                        <div className="flex flex-col"><span className="text-3xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={40} suffix="%" /></span><span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Manual Effort Saved</span></div>
                     </div>
                 </section>
-
                 <section id="experience" className="scroll-mt-24">
                     <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'experience' ? 'text-cyan-500' : 'opacity-30'}`}>Experience</h2>
                     <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-                        {[
-                            {
-                                role: "Technical Associate (HO)",
-                                company: "Open Links Foundation",
-                                logo: "https://www.openlinksfoundation.org/images/openlinksFoundationsLogo.png",
-                                period: "Dec 2024 - Present",
-                                points: ["Built automated Exam Pipeline.", "Developed Fuzzy Matching engine.", "Architected Scholarship Dashboards."]
-                            },
-                            {
-                                role: "Java dev. Intern",
-                                company: "TechnoHacks Edutech",
-                                logo: "https://technohacks.co.in/wp-content/uploads/2024/08/cropped-png-transperant-Copy-1.png",
-                                period: "Oct 2023 - Dec 2023",
-                                points: ["Developed GUI-based ATM simulations.", "Applied OOP principles for tools."]
-                            }
-                        ].map((exp, idx) => (
-                            <motion.div key={idx} whileHover={{ y: -8 }} className={`p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-50 border-black/5"} shadow-xl transition-all`}>
-                                <div className="flex flex-col items-start gap-4 md:gap-6">
-                                    <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center p-3 bg-white overflow-hidden shadow-md">
-                                        <img src={exp.logo} alt={exp.company} className="w-full h-auto object-contain" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl md:text-2xl font-bold leading-tight">{exp.role}</h3>
-                                        <p className="text-cyan-500 font-bold text-xs md:text-sm mt-1 uppercase tracking-widest">{exp.company}</p>
-                                    </div>
-                                    <div className="space-y-4 pt-6 border-t w-full border-white/10 text-sm md:text-base opacity-60 leading-relaxed">
-                                        <p className="text-[9px] md:text-[10px] font-black tracking-widest uppercase opacity-40">{exp.period}</p>
-                                        <ul className="space-y-3">
-                                            {exp.points.map((p, i) => <li key={i}>• {p}</li>)}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </motion.div>
+                        {[ { role: "Technical Associate (HO)", company: "Open Links Foundation", logo: "https://www.openlinksfoundation.org/images/openlinksFoundationsLogo.png", period: "Dec 2024 - Present", points: ["Built automated Exam Pipeline.", "Developed Fuzzy Matching engine.", "Architected Scholarship Dashboards."] }, { role: "Java dev. Intern", company: "TechnoHacks Edutech", logo: "https://technohacks.co.in/wp-content/uploads/2024/08/cropped-png-transperant-Copy-1.png", period: "Oct 2023 - Dec 2023", points: ["Developed GUI-based ATM simulations.", "Applied OOP principles for tools."] } ].map((exp, idx) => (
+                            <motion.div key={idx} whileHover={{ y: -8 }} className={`p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-50 border-black/5"} shadow-xl transition-all`}><div className="flex flex-col items-start gap-4 md:gap-6"><div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center p-3 bg-white overflow-hidden shadow-md"><img src={exp.logo} alt={exp.company} className="w-full h-auto object-contain" /></div><div><h3 className="text-xl md:text-2xl font-bold leading-tight">{exp.role}</h3><p className="text-cyan-500 font-bold text-xs md:text-sm mt-1 uppercase tracking-widest">{exp.company}</p></div><div className="space-y-4 pt-6 border-t w-full border-white/10 text-sm md:text-base opacity-60 leading-relaxed"><p className="text-[9px] md:text-[10px] font-black tracking-widest uppercase opacity-40">{exp.period}</p><ul className="space-y-3">{exp.points.map((p, i) => <li key={i}>• {p}</li>)}</ul></div></div></motion.div>
                         ))}
                     </div>
                 </section>
-
                 <section id="skills" className="scroll-mt-24">
                     <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 text-center font-bold transition-all ${activeSection === 'skills' ? 'text-cyan-500' : 'opacity-30'}`}>Skills</h2>
-                    <div className="flex flex-wrap justify-center gap-4 md:gap-10 max-w-4xl mx-auto">
-                        {skills.map((skill) => (
-                            <Magnetic key={skill.name} distance={0.3}>
-                                <div className="relative group">
-                                    <motion.div whileHover={{ scale: 1.1 }} className={`w-16 h-16 md:w-24 md:h-24 rounded-full border flex items-center justify-center p-4 md:p-5 transition-all duration-500 ${dark ? "border-white/10 bg-neutral-900/50 hover:border-cyan-500/50" : "border-black/10 bg-neutral-50 hover:border-cyan-500/50"}`}>
-                                        <img src={skill.icon} alt={skill.name} className={`w-8 h-8 md:w-12 md:h-12 object-contain transition-all ${dark ? "grayscale group-hover:grayscale-0" : ""}`} />
-                                    </motion.div>
-                                    <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50">
-                                        <div className="bg-cyan-600 text-white px-3 py-2 rounded-xl shadow-2xl flex flex-col items-center min-w-[90px] md:min-w-[110px] relative">
-                                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">{skill.name}</span>
-                                            <span className="text-[7px] md:text-[8px] font-bold opacity-80 uppercase tracking-tighter">{skill.level}</span>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-cyan-600 rotate-45" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </Magnetic>
-                        ))}
-                    </div>
+                    <div className="flex flex-wrap justify-center gap-4 md:gap-10 max-w-4xl mx-auto">{skills.map((skill) => (
+                        <Magnetic key={skill.name} distance={0.3}><div className="relative group"><motion.div whileHover={{ scale: 1.1 }} className={`w-16 h-16 md:w-24 md:h-24 rounded-full border flex items-center justify-center p-4 md:p-5 transition-all duration-500 ${dark ? "border-white/10 bg-neutral-900/50 hover:border-cyan-500/50" : "border-black/10 bg-neutral-50 hover:border-cyan-500/50"}`}><img src={skill.icon} alt={skill.name} className={`w-8 h-8 md:w-12 md:h-12 object-contain transition-all ${dark ? "grayscale group-hover:grayscale-0" : ""}`} /></motion.div><div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50"><div className="bg-cyan-600 text-white px-3 py-2 rounded-xl shadow-2xl flex flex-col items-center min-w-[90px] md:min-w-[110px] relative"><span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">{skill.name}</span><span className="text-[7px] md:text-[8px] font-bold opacity-80 uppercase tracking-tighter">{skill.level}</span><div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-cyan-600 rotate-45" /></div></div></div></Magnetic>
+                    ))}</div>
                 </section>
 
+                {/* PROJECTS SECTION (Updated Layout) */}
                 <section id="projects" className="scroll-mt-24">
                     <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'projects' ? 'text-cyan-500' : 'opacity-30'}`}>Featured Projects</h2>
                     <div className="space-y-8 md:space-y-12">
@@ -379,25 +316,12 @@ export default function Home() {
                 <section id="contact" className="scroll-mt-24">
                     <h2 className="text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight">I've got just what you need. <br /><span className="text-cyan-500 underline decoration-cyan-500 underline-offset-8">Let's talk.</span></h2>
                     <div className="grid md:grid-cols-2 gap-12 md:gap-24">
-                        <div className="space-y-6 md:space-y-12">
-                            {[
-                                { icon: <Icons.Mail />, val: "omkarsinare0@gmail.com", href: "mailto:omkarsinare0@gmail.com" },
-                                { icon: <Icons.Linkedin />, val: "linkedin.com/in/omkarsinare", href: "https://www.linkedin.com/in/omkarsinare" },
-                                { icon: <Icons.MapPin />, val: "Pune, Maharashtra", href: "#" }
-                            ].map((c, idx) => (
-                                <a key={idx} href={c.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 md:gap-6 group cursor-pointer w-fit">
-                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-cyan-500/20 flex items-center justify-center text-cyan-500 transition-all group-hover:border-cyan-500 group-hover:bg-cyan-500/5">{c.icon}</div>
-                                    <span className="text-base md:text-xl opacity-60 group-hover:opacity-100 group-hover:text-cyan-400 transition-all font-medium">{c.val}</span>
-                                </a>
-                            ))}
-                        </div>
+                        <div className="space-y-6 md:space-y-12">{[ { icon: <Icons.Mail />, val: "omkarsinare0@gmail.com", href: "mailto:omkarsinare0@gmail.com" }, { icon: <Icons.Linkedin />, val: "linkedin.com/in/omkarsinare", href: "https://www.linkedin.com/in/omkarsinare" }, { icon: <Icons.MapPin />, val: "Pune, Maharashtra", href: "#" } ].map((c, idx) => (
+                            <a key={idx} href={c.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 md:gap-6 group cursor-pointer w-fit"><div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-cyan-500/20 flex items-center justify-center text-cyan-500 transition-all group-hover:border-cyan-500 group-hover:bg-cyan-500/5">{c.icon}</div><span className="text-base md:text-xl opacity-60 group-hover:opacity-100 group-hover:text-cyan-400 transition-all font-medium">{c.val}</span></a>
+                        ))}</div>
                         <form action="https://formspree.io/f/xlgoqjpa" method="POST" className="space-y-4 md:space-y-5">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-                                <input type="text" name="name" placeholder="Name" required className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} />
-                                <input type="email" name="email" placeholder="Email" required className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} />
-                            </div>
-                            <textarea name="message" placeholder="Message" rows={5} required className={`w-full p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm`} />
-                            <button type="submit" className="w-full py-4 md:py-5 bg-cyan-500 text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-cyan-400 transition-all shadow-xl shadow-cyan-500/10">Send Message</button>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5"><input type="text" name="name" placeholder="Name" required className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} /><input type="email" name="email" placeholder="Email" required className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} /></div>
+                            <textarea name="message" placeholder="Message" rows={5} required className={`w-full p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-smresize-none`} /><button type="submit" className="w-full py-4 md:py-5 bg-cyan-500 text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-cyan-400 transition-all shadow-xl shadow-cyan-500/10">Send Message</button>
                         </form>
                     </div>
                 </section>
