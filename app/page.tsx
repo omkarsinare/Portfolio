@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useMotionValue, useSpring, animate, useInView } from "framer-motion";
+import { motion, useMotionValue, useSpring, animate, useInView, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef, ReactNode } from "react";
 import Typewriter from 'typewriter-effect';
 
@@ -97,7 +97,7 @@ const skills: Skill[] = [
     { name: "OpenCV", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg" }
 ];
 
-const ProjectCard = ({ project, dark }: { project: any, dark: boolean }) => {
+const ProjectCard = ({ project, dark, onImageClick }: { project: any, dark: boolean, onImageClick: (src: string) => void }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -106,28 +106,19 @@ const ProjectCard = ({ project, dark }: { project: any, dark: boolean }) => {
                 <h3 className="text-2xl md:text-4xl font-bold italic">{project.title}</h3>
                 <div className="flex flex-wrap gap-2">
                     {project.tags.map((tag: string) => (
-                        <span key={tag} className="text-[9px] md:text-[10px] border border-cyan-500/30 text-cyan-500 px-3 py-1 rounded-full font-bold uppercase tracking-widest">
-                            {tag}
-                        </span>
+                        <span key={tag} className="text-[9px] md:text-[10px] border border-cyan-500/30 text-cyan-500 px-3 py-1 rounded-full font-bold uppercase tracking-widest">{tag}</span>
                     ))}
                 </div>
             </div>
             
             <p className="opacity-60 max-w-2xl text-base md:text-lg mb-8">{project.desc}</p>
 
-            <button 
-                onClick={() => setIsExpanded(!isExpanded)}
-                className={`mb-6 text-[10px] font-black tracking-widest uppercase py-2.5 px-8 rounded-full border transition-all ${dark ? "border-white/10 hover:bg-white/5" : "border-black/10 hover:bg-black/5"} text-cyan-500`}
-            >
+            <button onClick={() => setIsExpanded(!isExpanded)} className={`mb-6 text-[10px] font-black tracking-widest uppercase py-2.5 px-8 rounded-full border transition-all ${dark ? "border-white/10 hover:bg-white/5" : "border-black/10 hover:bg-black/5"} text-cyan-500`}>
                 {isExpanded ? "Show Less" : "Know More"}
             </button>
 
             {isExpanded && (
-                <motion.div 
-                    initial={{ opacity: 0, height: 0 }} 
-                    animate={{ opacity: 1, height: "auto" }} 
-                    className="pt-8 border-t border-white/5 overflow-hidden"
-                >
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="pt-8 border-t border-white/5 overflow-hidden">
                     <ul className="space-y-4 mb-12">
                         {project.details.map((point: string, i: number) => (
                             <li key={i} className="flex gap-4 text-sm md:text-base opacity-70 leading-relaxed">
@@ -138,36 +129,31 @@ const ProjectCard = ({ project, dark }: { project: any, dark: boolean }) => {
 
                     {project.hasArchitecture && (
                         <div className="space-y-8">
-                            <h4 className="text-[10px] tracking-[0.4em] font-black uppercase text-cyan-500 opacity-80 mb-6">Project Architecture & Workflow</h4>
+                            <h4 className="text-[10px] tracking-[0.4em] font-black uppercase text-cyan-500 opacity-80 mb-6 text-center md:text-left">Project Architecture & Workflow</h4>
                             
-                            {project.img1 && project.img2 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-4">
-                                        <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Machine Learning Pipeline</p>
-                                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
-                                            <Image src={project.img1} alt="Workflow Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+                            <div className={`grid gap-8 ${project.img1 && project.img2 ? "grid-cols-1 md:grid-cols-2" : "max-w-2xl mx-auto"}`}>
+                                {[project.img1, project.img2].filter(Boolean).map((img, i) => (
+                                    <div key={i} className="space-y-4">
+                                        <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest text-center">
+                                            {project.img2 ? (i === 0 ? "Workflow / Pipeline" : "System Architecture") : "Architecture Overview"}
+                                        </p>
+                                        <div 
+                                            onClick={() => onImageClick(img)}
+                                            className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-white/5 cursor-zoom-in group/img shadow-2xl"
+                                        >
+                                            <Image 
+                                                src={img} 
+                                                alt="Architecture Diagram" 
+                                                fill 
+                                                className="object-contain p-4 group-hover/img:scale-105 transition-transform duration-700" 
+                                            />
+                                            <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
+                                                <span className="opacity-0 group-hover/img:opacity-100 bg-cyan-500 text-white text-[9px] font-black uppercase tracking-tighter px-3 py-1 rounded-full shadow-2xl transition-opacity">Click to Expand</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="space-y-4">
-                                        <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Technical System Architecture</p>
-                                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
-                                            <Image src={project.img2} alt="Architecture Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="max-w-2xl mx-auto space-y-4">
-                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest text-center">System Architecture & Workflow</p>
-                                    <div className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-2xl">
-                                        <Image 
-                                            src={project.img1} 
-                                            alt="Architecture Diagram" 
-                                            fill 
-                                            className="object-contain p-4 hover:scale-105 transition-transform duration-700" 
-                                        />
-                                    </div>
-                                </div>
-                            )}
+                                ))}
+                            </div>
                         </div>
                     )}
                 </motion.div>
@@ -179,6 +165,8 @@ const ProjectCard = ({ project, dark }: { project: any, dark: boolean }) => {
 export default function Home() {
     const [dark, setDark] = useState(true);
     const [activeSection, setActiveSection] = useState("");
+    const [selectedImg, setSelectedImg] = useState<string | null>(null);
+
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     const springX = useSpring(mouseX, { stiffness: 100, damping: 25 });
@@ -198,19 +186,14 @@ export default function Home() {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveSection(entry.target.id);
-                    }
+                    if (entry.isIntersecting) setActiveSection(entry.target.id);
                 });
             },
             { threshold: 0.4 }
         );
-
         sections.forEach((section) => observer.observe(section));
         return () => sections.forEach((section) => observer.unobserve(section));
     }, []);
-
-    const emojiFilter = dark ? "brightness(1.2)" : "brightness(0.9)";
 
     const projectData = [
         { 
@@ -219,22 +202,23 @@ export default function Home() {
             tags: ["ML + DL", "Python", "Security"],
             hasArchitecture: true,
             details: [
-                "Developed a hybrid detection framework utilizing Random Forest and XGBoost for structured data classification, integrated with a CNN to identify complex spatial patterns.",
-                "Performed feature engineering and dimensionality reduction to isolate the top 10 most impactful features, significantly lowering computational latency.",
-                "Outcome: Achieved a high-performance, real-time monitoring system capable of flagging malicious activity with optimized model efficiency."
+                "Developed a hybrid detection framework utilizing Random Forest and XGBoost for structured data classification.",
+                "Integrated CNN layers to identify complex spatial patterns within network traffic logs.",
+                "Performed feature engineering to isolate top 10 impactful features, lowering computational latency.",
+                "Outcome: High-performance real-time system flagging malicious activity with optimized model efficiency."
             ],
             img1: "/cyber-arch-1.png",
             img2: "/cyber-arch-2.png"
         },
         { 
-            title: "Vinoba Platform (Data Analysis & Automation)", 
+            title: "Vinoba Platform Automation", 
             desc: "Engineered automated data tools handling 300,000+ rows, improving processing speed by 80%.", 
             tags: ["Python", "Streamlit", "Apps Script"],
             hasArchitecture: true,
             details: [
-                "Scholarship Data Tool: Engineered a scalable data pipeline using Python and Streamlit to process 300,000+ rows in minutes, eliminating Excel dependencies.",
-                "Intelligent Name Matching System: Developed a token-based matching algorithm in Google Apps Script that outperformed standard lookup functions, reducing manual effort by 40%.",
-                "End-to-End Exam System: Designed and implemented a centralized system for center allocation, roll number generation, and digital admit card creation."
+                "Scholarship Data Tool: Scalable pipeline using Streamlit to process 300k+ rows, eliminating Excel dependencies.",
+                "Fuzzy Matching System: Developed token-based algorithm in GAS reducing manual effort by 40%.",
+                "Exam System: End-to-end management for center allocation, roll numbers, and digital admit cards."
             ],
             img1: "/Exam-system.png"
         }
@@ -279,7 +263,6 @@ export default function Home() {
 
                 <div className="flex flex-col items-center text-center w-full px-6 z-20">
                     <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} className="tracking-[0.4em] md:tracking-[0.6em] text-[10px] md:text-xs uppercase font-bold mb-4 md:mb-6">Data Analyst & Automation Engineer</motion.p>
-                    
                     <div className="h-[100px] md:h-[150px] flex items-center justify-center">
                         <div className="text-lg sm:text-2xl md:text-4xl font-bold max-w-4xl tracking-tight leading-snug">
                             <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> 👋`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records 📊`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> 🛡️`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation ⚡`).pauseFor(1000).deleteAll().typeString(`Driven by data and a <span style="color: #06b6d4;">Cappuccino</span> ☕`).pauseFor(2000).start(); }} />
@@ -290,13 +273,7 @@ export default function Home() {
                         {["ABOUT", "EXPERIENCE", "SKILLS", "PROJECTS", "CONTACT"].map((item) => (
                             <Magnetic key={item} distance={0.25}>
                                 <a href={`#${item.toLowerCase()}`}>
-                                    <button 
-                                        className={`px-4 py-2 md:px-7 md:py-2.5 rounded-full border text-[8px] md:text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 backdrop-blur-md relative overflow-hidden group
-                                            ${dark 
-                                                ? "border-white/10 text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.03)] hover:border-cyan-500/50" 
-                                                : "border-black/10 text-black bg-black/5 shadow-[0_0_15px_rgba(0,0,0,0.03)] hover:border-cyan-600/50"
-                                            } ${activeSection === item.toLowerCase() ? "border-cyan-500/80 !text-cyan-400" : ""}`}
-                                    >
+                                    <button className={`px-4 py-2 md:px-7 md:py-2.5 rounded-full border text-[8px] md:text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 backdrop-blur-md relative overflow-hidden group ${dark ? "border-white/10 text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.03)] hover:border-cyan-500/50" : "border-black/10 text-black bg-black/5 shadow-[0_0_15px_rgba(0,0,0,0.03)] hover:border-cyan-600/50"} ${activeSection === item.toLowerCase() ? "border-cyan-500/80 !text-cyan-400" : ""}`}>
                                         <span className="relative z-10 group-hover:text-cyan-500 transition-colors duration-300">{item}</span>
                                         <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${dark ? "bg-cyan-500/5" : "bg-cyan-600/5"}`} />
                                     </button>
@@ -310,10 +287,9 @@ export default function Home() {
             {/* CONTENT WRAPPER */}
             <div className="w-full max-w-5xl px-6 space-y-24 md:space-y-60 py-10 md:py-40 relative z-20">
 
-                {/* SUMMARY SECTION */}
                 <section id="about" className="scroll-mt-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
                     <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="md:pr-12">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6 italic transition-colors">Summary</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6 italic">Summary</h2>
                         <p className="text-base md:text-xl leading-relaxed opacity-70 font-medium">I am a Data Engineer and Automation Specialist dedicated to solving operational bottlenecks. From processing 300k+ row datasets to building custom "AI-like" fuzzy matching engines, I transform manual chaos into scalable, automated systems.</p>
                     </motion.div>
                     
@@ -329,7 +305,6 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* EXPERIENCE SECTION */}
                 <section id="experience" className="scroll-mt-24">
                     <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'experience' ? 'text-cyan-500' : 'opacity-30'}`}>Experience</h2>
                     <div className="grid md:grid-cols-2 gap-6 md:gap-8">
@@ -370,7 +345,6 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* SKILLS SECTION */}
                 <section id="skills" className="scroll-mt-24">
                     <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 text-center font-bold transition-all ${activeSection === 'skills' ? 'text-cyan-500' : 'opacity-30'}`}>Skills</h2>
                     <div className="flex flex-wrap justify-center gap-4 md:gap-10 max-w-4xl mx-auto">
@@ -393,97 +367,81 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* PROJECTS SECTION */}
                 <section id="projects" className="scroll-mt-24">
                     <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'projects' ? 'text-cyan-500' : 'opacity-30'}`}>Featured Projects</h2>
                     <div className="space-y-8 md:space-y-12">
                         {projectData.map((proj, idx) => (
-                            <ProjectCard key={idx} project={proj} dark={dark} />
+                            <ProjectCard key={idx} project={proj} dark={dark} onImageClick={setSelectedImg} />
                         ))}
                     </div>
                 </section>
 
-                {/* CONTACT SECTION */}
                 <section id="contact" className="scroll-mt-24">
-                    <h2 className={`text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight transition-all`}>
-                        I've got just what you need. <br />
-                        <span className="text-cyan-500 underline decoration-cyan-500 underline-offset-8">Let's talk.</span>
-                    </h2>
-                    
+                    <h2 className="text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight">I've got just what you need. <br /><span className="text-cyan-500 underline decoration-cyan-500 underline-offset-8">Let's talk.</span></h2>
                     <div className="grid md:grid-cols-2 gap-12 md:gap-24">
                         <div className="space-y-6 md:space-y-12">
                             {[
-                                { 
-                                    icon: <Icons.Mail />, 
-                                    val: "omkarsinare0@gmail.com", 
-                                    href: "mailto:omkarsinare0@gmail.com" 
-                                },
-                                { 
-                                    icon: <Icons.Linkedin />, 
-                                    val: "linkedin.com/in/omkarsinare", 
-                                    href: "https://www.linkedin.com/in/omkarsinare" 
-                                },
-                                { 
-                                    icon: <Icons.MapPin />, 
-                                    val: "Pune, Maharashtra", 
-                                    href: "#" 
-                                }
+                                { icon: <Icons.Mail />, val: "omkarsinare0@gmail.com", href: "mailto:omkarsinare0@gmail.com" },
+                                { icon: <Icons.Linkedin />, val: "linkedin.com/in/omkarsinare", href: "https://www.linkedin.com/in/omkarsinare" },
+                                { icon: <Icons.MapPin />, val: "Pune, Maharashtra", href: "#" }
                             ].map((c, idx) => (
-                                <a 
-                                    key={idx} 
-                                    href={c.href} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    className="flex items-center gap-4 md:gap-6 group cursor-pointer w-fit"
-                                >
-                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-cyan-500/20 flex items-center justify-center text-cyan-500 transition-all group-hover:border-cyan-500 group-hover:bg-cyan-500/5">
-                                        {c.icon}
-                                    </div>
-                                    <span className="text-base md:text-xl opacity-60 group-hover:opacity-100 group-hover:text-cyan-400 transition-all font-medium">
-                                        {c.val}
-                                    </span>
+                                <a key={idx} href={c.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 md:gap-6 group cursor-pointer w-fit">
+                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-cyan-500/20 flex items-center justify-center text-cyan-500 transition-all group-hover:border-cyan-500 group-hover:bg-cyan-500/5">{c.icon}</div>
+                                    <span className="text-base md:text-xl opacity-60 group-hover:opacity-100 group-hover:text-cyan-400 transition-all font-medium">{c.val}</span>
                                 </a>
                             ))}
                         </div>
-
-                        <form 
-                            action="https://formspree.io/f/xlgoqjpa" 
-                            method="POST" 
-                            className="space-y-4 md:space-y-5"
-                        >
+                        <form action="https://formspree.io/f/xlgoqjpa" method="POST" className="space-y-4 md:space-y-5">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-                                <input 
-                                    type="text" 
-                                    name="name"
-                                    placeholder="Name" 
-                                    required
-                                    className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} 
-                                />
-                                <input 
-                                    type="email" 
-                                    name="email"
-                                    placeholder="Email" 
-                                    required
-                                    className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} 
-                                />
+                                <input type="text" name="name" placeholder="Name" required className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} />
+                                <input type="email" name="email" placeholder="Email" required className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} />
                             </div>
-                            <textarea 
-                                name="message"
-                                placeholder="Message" 
-                                rows={5} 
-                                required
-                                className={`w-full p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm resize-none`} 
-                            />
-                            <button 
-                                type="submit" 
-                                className="w-full py-4 md:py-5 rounded-2xl bg-cyan-600 text-white font-bold uppercase tracking-[0.2em] flex items-center justify-center hover:bg-cyan-500 transition-colors"
-                            >
-                                Send Message
-                            </button>
+                            <textarea name="message" placeholder="Message" rows={5} required className={`w-full p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm`} />
+                            <button type="submit" className="w-full py-4 md:py-5 bg-cyan-500 text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-cyan-400 transition-all shadow-xl shadow-cyan-500/10">Send Message</button>
                         </form>
                     </div>
                 </section>
             </div>
+
+            {/* FULLSCREEN LIGHTBOX MODAL */}
+            <AnimatePresence>
+                {selectedImg && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setSelectedImg(null)}
+                        className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-10 cursor-zoom-out"
+                    >
+                        <button className="absolute top-6 right-6 md:top-10 md:right-10 text-white opacity-50 hover:opacity-100 transition-opacity z-[110]" onClick={() => setSelectedImg(null)}>
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        </button>
+                        
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="relative w-full h-full max-w-7xl max-h-[85vh]"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <Image 
+                                src={selectedImg} 
+                                alt="Fullscreen View" 
+                                fill 
+                                className="object-contain"
+                                quality={100}
+                                priority
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* FOOTER */}
+            <footer className={`w-full py-10 md:py-20 border-t ${dark ? "border-white/5" : "border-black/5"} text-center z-20`}>
+                <p className="text-[9px] md:text-[10px] font-black tracking-[0.4em] uppercase opacity-30">© 2026 Omkar Sinare. Engineered for scale.</p>
+            </footer>
         </main>
     );
 }
