@@ -327,7 +327,7 @@ export default function Home() {
                                 { 
                                     icon: <Icons.Linkedin />, 
                                     val: "linkedin.com/in/omkarsinare", 
-                                    href: "https://linkedin.com/in/omkarsinare" 
+                                    href: "https://www.linkedin.com/in/omkarsinare" 
                                 },
                                 { 
                                     icon: <Icons.MapPin />, 
