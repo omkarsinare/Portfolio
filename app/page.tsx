@@ -205,15 +205,15 @@ export default function Home() {
         { 
             title: "Cyber Attack Detection System", 
             desc: "Built a real-time system using Random Forest and CNN, optimized for intrusion detection.", 
-            tags: ["ML + DL", "Python", "Security"],
+            tags: ["ML + DL", "Python", "Cyber-Security"],
             hasArchitecture: true,
             details: [
                 "Developed a hybrid detection framework utilizing Random Forest and XGBoost for structured data classification, integrated with a CNN to identify complex spatial patterns.",
                 "Performed feature engineering and dimensionality reduction to isolate the top 10 most impactful features, significantly lowering computational latency.",
                 "Outcome: Achieved a high-performance, real-time monitoring system capable of flagging malicious activity with optimized model efficiency."
             ],
-            img1: "/Screenshot 2026-04-11 152705.png",
-            img2: "/Screenshot 2026-04-11 152719.png"
+            img1: "/cyber-arch-2.png",
+            img2: "/cyber-arch-1.png"
         },
         { 
             title: "Vinoba Platform (Data Analysis & Automation)", 
