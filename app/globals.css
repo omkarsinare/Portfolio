@@ -2,12 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-    background: #f5f5f5;
-}
+/* --- Existing Global Styles --- */
 html {
-    scroll-behavior: smooth;
+  scroll-behavior: smooth;
 }
+
 body {
-    cursor: default;
+  background: #000000; /* Standard for dark-themed portfolios */
+  color: #ffffff;
+  cursor: default;
+}
+
+/* --- Mobile Fixes: SEO & Spacing --- */
+
+@media (max-width: 768px) {
+  /* 1. Reduce Black Space below Page 1 */
+  section:first-of-type, 
+  .hero-container { 
+    min-height: auto !important; 
+    height: auto !important;
+    padding-top: 100px !important;
+    padding-bottom: 40px !important; /* Manually tightens the gap */
+  }
+
+  /* 2. Fix the Menu (Prevents text from being cut off) */
+  nav ul, .menu-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    padding: 0 15px !important;
+  }
+
+  nav a, .menu-link {
+    font-size: 13px !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  /* 3. General Section Spacing */
+  section {
+    min-height: auto !important;
+    padding-top: 50px !important;
+    padding-bottom: 50px !important;
+  }
+
+  /* 4. Heading size (Prevents long text from breaking layout) */
+  h1 {
+    font-size: 1.8rem !important;
+    line-height: 1.2 !important;
+  }
 }
