@@ -5,7 +5,7 @@ import { motion, useMotionValue, useSpring, animate, useInView } from "framer-mo
 import { useState, useEffect, useRef, ReactNode } from "react";
 import Typewriter from 'typewriter-effect';
 
-// --- TYPES ---
+// --- TYPES & DATA ---
 interface MagneticProps {
     children: ReactNode;
     distance?: number;
@@ -102,6 +102,7 @@ const skills: Skill[] = [
 
 export default function Home() {
     const [dark, setDark] = useState(true);
+    const [activeSection, setActiveSection] = useState("");
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     const springX = useSpring(mouseX, { stiffness: 100, damping: 25 });
@@ -115,6 +116,24 @@ export default function Home() {
         window.addEventListener("mousemove", handleMouseMove);
         return () => window.removeEventListener("mousemove", handleMouseMove);
     }, [mouseX, mouseY]);
+
+    // --- Observer for Active Section ---
+    useEffect(() => {
+        const sections = document.querySelectorAll("section[id]");
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveSection(entry.target.id);
+                    }
+                });
+            },
+            { threshold: 0.4 } // Section must cover 40% of viewport to be "active"
+        );
+
+        sections.forEach((section) => observer.observe(section));
+        return () => sections.forEach((section) => observer.unobserve(section));
+    }, []);
 
     const emojiFilter = dark ? "brightness(1.2)" : "brightness(0.9)";
 
@@ -143,7 +162,7 @@ export default function Home() {
             </div>
 
             {/* HERO SECTION */}
-            <section className="relative w-full max-w-7xl flex flex-col items-center justify-center min-h-[70vh] md:min-h-screen py-10 md:py-20">
+            <section id="home" className="relative w-full max-w-7xl flex flex-col items-center justify-center min-h-[70vh] md:min-h-screen py-10 md:py-20 scroll-mt-24">
                 <div key={dark ? "d" : "l"} className="relative flex items-center justify-center mb-8 md:mb-16">
                     {[0, 1, 2].map((i) => (
                         <motion.div key={i} className={`absolute rounded-full border-2 ${dark ? "border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "border-black/80 shadow-[0_0_20px_rgba(0,0,0,0.1)]"}`} style={{ width: 160, height: 160 }} initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: [0.5, 1.2, 8], opacity: [0, dark ? 0.5 : 0.4, 0] }} transition={{ duration: 8, repeat: Infinity, delay: i * 2.5, ease: [0.21, 0.85, 0.45, 1], times: [0, 0.1, 1] }} />
@@ -167,13 +186,13 @@ export default function Home() {
                     <nav className="flex flex-wrap justify-center gap-3 md:gap-8 mt-10 md:mt-24">
                         {["ABOUT", "EXPERIENCE", "SKILLS", "PROJECTS", "CONTACT"].map((item) => (
                             <Magnetic key={item} distance={0.25}>
-                                <a href={`#${item.toLowerCase()}`} className="menu-link-wrapper">
+                                <a href={`#${item.toLowerCase()}`}>
                                     <button 
                                         className={`px-4 py-2 md:px-7 md:py-2.5 rounded-full border text-[8px] md:text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 backdrop-blur-md relative overflow-hidden group
                                             ${dark 
                                                 ? "border-white/10 text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.03)] hover:border-cyan-500/50" 
                                                 : "border-black/10 text-black bg-black/5 shadow-[0_0_15px_rgba(0,0,0,0.03)] hover:border-cyan-600/50"
-                                            }`}
+                                            } ${activeSection === item.toLowerCase() ? "border-cyan-500/80 !text-cyan-400" : ""}`}
                                     >
                                         <span className="relative z-10 group-hover:text-cyan-500 transition-colors duration-300">{item}</span>
                                         <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${dark ? "bg-cyan-500/5" : "bg-cyan-600/5"}`} />
@@ -191,7 +210,7 @@ export default function Home() {
                 {/* SUMMARY SECTION */}
                 <section id="about" className="scroll-mt-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
                     <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="md:pr-12">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6 italic">Summary</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6 italic transition-colors">Summary</h2>
                         <p className="text-base md:text-xl leading-relaxed opacity-70 font-medium">I am a Data Engineer and Automation Specialist dedicated to solving operational bottlenecks. From processing 300k+ row datasets to building custom "AI-like" fuzzy matching engines, I transform manual chaos into scalable, automated systems.</p>
                     </motion.div>
                     
@@ -209,7 +228,7 @@ export default function Home() {
 
                 {/* EXPERIENCE SECTION */}
                 <section id="experience" className="scroll-mt-24">
-                    <h2 className="text-[10px] tracking-[1em] uppercase opacity-30 mb-12 md:mb-16 text-center font-bold">Experience</h2>
+                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'experience' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Experience</h2>
                     <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                         {[
                             {
@@ -250,7 +269,7 @@ export default function Home() {
 
                 {/* SKILLS SECTION */}
                 <section id="skills" className="scroll-mt-24">
-                    <h2 className="text-[10px] tracking-[1em] uppercase opacity-30 mb-12 text-center font-bold">Skills</h2>
+                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 text-center font-bold transition-all ${activeSection === 'skills' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Skills</h2>
                     <div className="flex flex-wrap justify-center gap-4 md:gap-10 max-w-4xl mx-auto">
                         {skills.map((skill) => (
                             <Magnetic key={skill.name} distance={0.3}>
@@ -273,7 +292,7 @@ export default function Home() {
 
                 {/* PROJECTS SECTION */}
                 <section id="projects" className="scroll-mt-24">
-                    <h2 className="text-[10px] tracking-[1em] uppercase opacity-30 mb-12 md:mb-16 text-center font-bold">Featured Projects</h2>
+                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'projects' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Featured Projects</h2>
                     <div className="space-y-8 md:space-y-24">
                         {[
                             { title: "Cyber Attack Detection", desc: "Built a real-time system using Random Forest and CNN, optimized for intrusion detection.", tags: ["ML + DL", "Python", "Security"] },
@@ -292,7 +311,7 @@ export default function Home() {
 
                 {/* CONTACT SECTION */}
                 <section id="contact" className="scroll-mt-24">
-                    <h2 className="text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight">I&apos;ve got just what you need. <br /><span className="underline decoration-cyan-500 underline-offset-8">Let&apos;s talk.</span></h2>
+                    <h2 className={`text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight transition-all ${activeSection === 'contact' ? 'title-glow-cyan' : ''}`}>I&apos;ve got just what you need. <br /><span className={`${activeSection === 'contact' ? 'text-cyan-500' : ''} underline decoration-cyan-500 underline-offset-8`}>Let&apos;s talk.</span></h2>
                     <div className="grid md:grid-cols-2 gap-12 md:gap-24">
                         <div className="space-y-6 md:space-y-12">
                             {[
