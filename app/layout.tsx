@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 
 // SEO Update: Changed 'Onkar' to 'Omkar' to match your branding
 export const metadata: Metadata = {
-  title: "Omkar Sinare | Data Analyst & Automation Engineer",
-  description: "Official portfolio of Omkar Sinare, specializing in Data Engineering, Automation, and Cyber Attack detection.",
+  title: "Omkar Sinare | Computer Engineer",
+  description: "Official portfolio of Omkar Sinare, specializing in Data Engineering, Automation, ans AIML",
 };
 
 export default function RootLayout({
