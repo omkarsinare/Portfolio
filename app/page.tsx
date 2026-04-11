@@ -323,7 +323,7 @@ export default function Home() {
                     <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                         {[
                             {
-                                role: "Technical Associate (HO)",
+                                role: "Data Analyst L1",
                                 company: "Open Links Foundation",
                                 logo: "https://www.openlinksfoundation.org/images/openlinksFoundationsLogo.png",
                                 period: "Dec 2024 - Present",
