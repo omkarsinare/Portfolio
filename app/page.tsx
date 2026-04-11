@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, AnimatePresence, useMotionValue, useSpring, animate, useInView } from "framer-motion";
+import { motion, useMotionValue, useSpring, animate, useInView } from "framer-motion";
 import { useState, useEffect, useRef, ReactNode } from "react";
 import Typewriter from 'typewriter-effect';
 
@@ -38,6 +38,9 @@ const Icons = {
     ),
     Home: () => (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+    ),
+    Send: () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
     )
 };
 
@@ -97,7 +100,8 @@ const skills: Skill[] = [
     { name: "OpenCV", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg" }
 ];
 
-const ProjectCard = ({ project, dark, onImageClick }: { project: any, dark: boolean, onImageClick: (src: string) => void }) => {
+// Sub-component for Project Cards to manage individual 'Know More' states
+const ProjectCard = ({ project, dark }: { project: any, dark: boolean }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -106,19 +110,28 @@ const ProjectCard = ({ project, dark, onImageClick }: { project: any, dark: bool
                 <h3 className="text-2xl md:text-4xl font-bold italic">{project.title}</h3>
                 <div className="flex flex-wrap gap-2">
                     {project.tags.map((tag: string) => (
-                        <span key={tag} className="text-[9px] md:text-[10px] border border-cyan-500/30 text-cyan-500 px-3 py-1 rounded-full font-bold uppercase tracking-widest">{tag}</span>
+                        <span key={tag} className="text-[9px] md:text-[10px] border border-cyan-500/30 text-cyan-500 px-3 py-1 rounded-full font-bold uppercase tracking-widest">
+                            {tag}
+                        </span>
                     ))}
                 </div>
             </div>
             
             <p className="opacity-60 max-w-2xl text-base md:text-lg mb-8">{project.desc}</p>
 
-            <button onClick={() => setIsExpanded(!isExpanded)} className={`mb-6 text-[10px] font-black tracking-widest uppercase py-2.5 px-8 rounded-full border transition-all ${dark ? "border-white/10 hover:bg-white/5" : "border-black/10 hover:bg-black/5"} text-cyan-500`}>
+            <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className={`mb-6 text-[10px] font-black tracking-widest uppercase py-2.5 px-8 rounded-full border transition-all ${dark ? "border-white/10 hover:bg-white/5" : "border-black/10 hover:bg-black/5"} text-cyan-500`}
+            >
                 {isExpanded ? "Show Less" : "Know More"}
             </button>
 
             {isExpanded && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="pt-8 border-t border-white/5 overflow-hidden">
+                <motion.div 
+                    initial={{ opacity: 0, height: 0 }} 
+                    animate={{ opacity: 1, height: "auto" }} 
+                    className="pt-8 border-t border-white/5 overflow-hidden"
+                >
                     <ul className="space-y-4 mb-12">
                         {project.details.map((point: string, i: number) => (
                             <li key={i} className="flex gap-4 text-sm md:text-base opacity-70 leading-relaxed">
@@ -129,21 +142,18 @@ const ProjectCard = ({ project, dark, onImageClick }: { project: any, dark: bool
 
                     {project.hasArchitecture && (
                         <div className="space-y-8">
-                            <h4 className="text-[10px] tracking-[0.4em] font-black uppercase text-cyan-500 opacity-80 mb-6 text-center">Project Architecture & Workflow</h4>
-                            <div className="max-w-xl mx-auto space-y-4">
-                                <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest text-center">Technical Overview</p>
-                                <div 
-                                    onClick={() => onImageClick(project.img1)}
-                                    className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-white shadow-2xl cursor-zoom-in group/img"
-                                >
-                                    <Image 
-                                        src={project.img1} 
-                                        alt="Architecture Diagram" 
-                                        fill 
-                                        className="object-contain p-4 transition-transform duration-700 group-hover/img:scale-105" 
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
-                                        <span className="opacity-0 group-hover/img:opacity-100 bg-cyan-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-xl transition-opacity">Click to Enlarge</span>
+                            <h4 className="text-[10px] tracking-[0.4em] font-black uppercase text-cyan-500 opacity-80 mb-6">Project Architecture & Workflow</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Machine Learning Pipeline</p>
+                                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
+                                        <Image src={project.img1} alt="Workflow Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Technical System Architecture</p>
+                                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
+                                        <Image src={project.img2} alt="Architecture Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
                                     </div>
                                 </div>
                             </div>
@@ -158,8 +168,6 @@ const ProjectCard = ({ project, dark, onImageClick }: { project: any, dark: bool
 export default function Home() {
     const [dark, setDark] = useState(true);
     const [activeSection, setActiveSection] = useState("");
-    const [selectedImg, setSelectedImg] = useState<string | null>(null);
-
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     const springX = useSpring(mouseX, { stiffness: 100, damping: 25 });
@@ -175,18 +183,23 @@ export default function Home() {
     }, [mouseX, mouseY]);
 
     useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelectedImg(null); };
-        window.addEventListener('keydown', handleEsc);
         const sections = document.querySelectorAll("section[id]");
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => { if (entry.isIntersecting) setActiveSection(entry.target.id); });
-        }, { threshold: 0.4 });
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveSection(entry.target.id);
+                    }
+                });
+            },
+            { threshold: 0.4 }
+        );
+
         sections.forEach((section) => observer.observe(section));
-        return () => {
-            sections.forEach((section) => observer.unobserve(section));
-            window.removeEventListener('keydown', handleEsc);
-        };
+        return () => sections.forEach((section) => observer.unobserve(section));
     }, []);
+
+    const emojiFilter = dark ? "brightness(1.2)" : "brightness(0.9)";
 
     const projectData = [
         { 
@@ -195,112 +208,275 @@ export default function Home() {
             tags: ["ML + DL", "Python", "Security"],
             hasArchitecture: true,
             details: [
-                "Built a real-time cyber attack detection system using Random Forest, XGBoost, and CNN[cite: 24].",
-                "Reduced dataset to top 10 features, improving performance and model efficiency[cite: 24].",
-                "Integrated CNN layers to identify complex spatial patterns within network traffic logs."
+                "Developed a hybrid detection framework utilizing Random Forest and XGBoost for structured data classification, integrated with a CNN to identify complex spatial patterns.",
+                "Performed feature engineering and dimensionality reduction to isolate the top 10 most impactful features, significantly lowering computational latency.",
+                "Outcome: Achieved a high-performance, real-time monitoring system capable of flagging malicious activity with optimized model efficiency."
             ],
-            img1: "/p1.png"
+            img1: "/Screenshot 2026-04-11 152705.png",
+            img2: "/Screenshot 2026-04-11 152719.png"
         },
         { 
-            title: "Scholarship Data Tool", 
-            desc: "Engineered a scalable data pipeline using Python and Streamlit to process 300,000+ rows.", 
-            tags: ["Python", "Streamlit", "Automation"],
-            hasArchitecture: true,
+            title: "Vinoba Platform (Data Analysis & Automation)", 
+            desc: "Engineered automated data tools handling 300,000+ rows, improving processing speed by 80%.", 
+            tags: ["Python", "Streamlit", "Apps Script"],
+            hasArchitecture: false,
             details: [
-                "Built a Scholarship Data Tool using Python + Streamlit to generate student dashboards from raw data in minutes[cite: 30].",
-                "Engineered a tool handling 300,000+ rows, eliminating Excel dependency and improving efficiency by 80%[cite: 30].",
-                "Automated complex calculations for educational assessments across multiple districts."
-            ],
-            img1: "/p2.png"
-        },
-        { 
-            title: "Fuzzy Matching & Exam System", 
-            desc: "Developed token-based name matching and a centralized end-to-end exam management system.", 
-            tags: ["GAS", "DBMS", "Apps Script"],
-            hasArchitecture: true,
-            details: [
-                "Developed a token-based name matching system in Google Apps Script, outperforming VLOOKUP/XLOOKUP[cite: 31].",
-                "Designed an end-to-end exam system including center allocation, roll number generation, and admit cards.",
-                "Created a student portal via Apps Script for admit card access and student lookup."
-            ],
-            img1: "/Exam-system.png"
+                "Scholarship Data Tool: Engineered a scalable data pipeline using Python and Streamlit to process 300,000+ rows in minutes, eliminating Excel dependencies.",
+                "Intelligent Name Matching System: Developed a token-based matching algorithm in Google Apps Script that outperformed standard lookup functions, reducing manual effort by 40%.",
+                "End-to-End Exam System: Designed and implemented a centralized system for center allocation, roll number generation, and digital admit card creation."
+            ]
         }
     ];
 
     return (
         <main className={`${dark ? "bg-black text-white" : "bg-white text-black"} transition-colors duration-700 min-h-screen font-sans selection:bg-cyan-500/30 overflow-x-hidden relative flex flex-col items-center`}>
+
+            {/* CURSOR GLOW */}
             <motion.div className="pointer-events-none fixed inset-0 z-30 opacity-40" style={{ background: `radial-gradient(600px circle at ${springX}px ${springY}px, ${dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)"}, transparent 80%)` }} />
 
+            {/* HOME BUTTON */}
             <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">
                 <Magnetic distance={0.3}>
-                    <button aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 shadow-2xl transition-all ${dark ? "bg-neutral-900 border-white/20 text-cyan-500 hover:border-cyan-500" : "bg-neutral-100 border-black/20 text-cyan-600 hover:border-cyan-600"}`}><Icons.Home /></button>
-                </Magnetic>
-            </div>
-            
-            <div className="fixed top-6 right-6 z-50">
-                <Magnetic distance={0.2}>
-                    <button onClick={() => setDark(!dark)} className={`px-4 py-1.5 md:px-6 md:py-2 rounded-full border text-[9px] md:text-[10px] tracking-widest uppercase transition-all backdrop-blur-md font-bold ${dark ? "border-white/20 text-white hover:bg-white/10" : "border-black/40 text-black hover:bg-black/10"}`}>{dark ? "Light" : "Dark"}</button>
+                    <button aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 shadow-2xl transition-all ${dark ? "bg-neutral-900 border-white/20 text-cyan-500 hover:border-cyan-500" : "bg-neutral-100 border-black/20 text-cyan-600 hover:border-cyan-600"}`}>
+                        <Icons.Home />
+                    </button>
                 </Magnetic>
             </div>
 
+            {/* TOGGLE BUTTON */}
+            <div className="fixed top-6 right-6 z-50">
+                <Magnetic distance={0.2}>
+                    <button onClick={() => setDark(!dark)} className={`px-4 py-1.5 md:px-6 md:py-2 rounded-full border text-[9px] md:text-[10px] tracking-widest uppercase transition-all backdrop-blur-md font-bold ${dark ? "border-white/20 text-white hover:bg-white/10" : "border-black/40 text-black hover:bg-black/10"}`}>
+                        {dark ? "Light" : "Dark"}
+                    </button>
+                </Magnetic>
+            </div>
+
+            {/* HERO SECTION */}
             <section id="home" className="relative w-full max-w-7xl flex flex-col items-center justify-center min-h-[70vh] md:min-h-screen py-10 md:py-20 scroll-mt-24">
                 <div key={dark ? "d" : "l"} className="relative flex items-center justify-center mb-8 md:mb-16">
                     {[0, 1, 2].map((i) => (
                         <motion.div key={i} className={`absolute rounded-full border-2 ${dark ? "border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "border-black/80 shadow-[0_0_20px_rgba(0,0,0,0.1)]"}`} style={{ width: 160, height: 160 }} initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: [0.5, 1.2, 8], opacity: [0, dark ? 0.5 : 0.4, 0] }} transition={{ duration: 8, repeat: Infinity, delay: i * 2.5, ease: [0.21, 0.85, 0.45, 1], times: [0, 0.1, 1] }} />
                     ))}
                     <motion.div whileHover={{ scale: 1.05 }} className="relative z-10">
-                        <div className={`rounded-full p-1 border-2 ${dark ? "border-white/20" : "border-black/20"}`}><Image src="/profile.jpg" alt="Omkar Sinare" width={140} height={140} className={`rounded-full object-cover border-4 relative z-20 ${dark ? "border-white" : "border-black"} shadow-2xl md:w-[170px] md:h-[170px]`} priority /></div>
+                        <div className={`rounded-full p-1 border-2 ${dark ? "border-white/20" : "border-black/20"}`}>
+                             <Image src="/profile.jpg" alt="Omkar Sinare" width={140} height={140} className={`rounded-full object-cover border-4 relative z-20 ${dark ? "border-white" : "border-black"} shadow-2xl md:w-[170px] md:h-[170px]`} priority />
+                        </div>
                     </motion.div>
                 </div>
+
                 <div className="flex flex-col items-center text-center w-full px-6 z-20">
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} className="tracking-[0.4em] md:tracking-[0.6em] text-[10px] md:text-xs uppercase font-bold mb-4 md:mb-6">Data Analyst & Automation Engineer [cite: 5, 6]</motion.p>
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} className="tracking-[0.4em] md:tracking-[0.6em] text-[10px] md:text-xs uppercase font-bold mb-4 md:mb-6">Data Analyst & Automation Engineer</motion.p>
+                    
                     <div className="h-[100px] md:h-[150px] flex items-center justify-center">
                         <div className="text-lg sm:text-2xl md:text-4xl font-bold max-w-4xl tracking-tight leading-snug">
-                            <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> 👋 [cite: 1]`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records 📊 [cite: 30]`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> 🛡️ [cite: 24]`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation ⚡ [cite: 16]`).pauseFor(2000).start(); }} />
+                            <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> <span style="filter: ${emojiFilter}">👋</span>`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records <span style="filter: ${emojiFilter}">📊</span>`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> <span style="filter: ${emojiFilter}">🛡️</span>`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation <span style="filter: ${emojiFilter}">⚡</span>`).pauseFor(1000).deleteAll().typeString(`Driven by data and a <span style="color: #06b6d4;">Cappuccino</span> <span style="filter: ${emojiFilter}">☕</span>`).pauseFor(2000).start(); }} />
                         </div>
                     </div>
+                    
+                    <nav className="flex flex-wrap justify-center gap-3 md:gap-8 mt-10 md:mt-24">
+                        {["ABOUT", "EXPERIENCE", "SKILLS", "PROJECTS", "CONTACT"].map((item) => (
+                            <Magnetic key={item} distance={0.25}>
+                                <a href={`#${item.toLowerCase()}`}>
+                                    <button 
+                                        className={`px-4 py-2 md:px-7 md:py-2.5 rounded-full border text-[8px] md:text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 backdrop-blur-md relative overflow-hidden group
+                                            ${dark 
+                                                ? "border-white/10 text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.03)] hover:border-cyan-500/50" 
+                                                : "border-black/10 text-black bg-black/5 shadow-[0_0_15px_rgba(0,0,0,0.03)] hover:border-cyan-600/50"
+                                            } ${activeSection === item.toLowerCase() ? "border-cyan-500/80 !text-cyan-400" : ""}`}
+                                    >
+                                        <span className="relative z-10 group-hover:text-cyan-500 transition-colors duration-300">{item}</span>
+                                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${dark ? "bg-cyan-500/5" : "bg-cyan-600/5"}`} />
+                                    </button>
+                                </a>
+                            </Magnetic>
+                        ))}
+                    </nav>
                 </div>
             </section>
 
+            {/* CONTENT WRAPPER */}
             <div className="w-full max-w-5xl px-6 space-y-24 md:space-y-60 py-10 md:py-40 relative z-20">
+
+                {/* SUMMARY SECTION */}
+                <section id="about" className="scroll-mt-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
+                    <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="md:pr-12">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6 italic transition-colors">Summary</h2>
+                        <p className="text-base md:text-xl leading-relaxed opacity-70 font-medium">I am a Data Engineer and Automation Specialist dedicated to solving operational bottlenecks. From processing 300k+ row datasets to building custom "AI-like" fuzzy matching engines, I transform manual chaos into scalable, automated systems.</p>
+                    </motion.div>
+                    
+                    <div className="flex flex-row gap-8 md:gap-16 justify-between md:justify-end items-start md:pt-20">
+                        <div className="flex flex-col">
+                            <span className="text-3xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={300000} suffix="+" /></span>
+                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Rows Handled</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-3xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={40} suffix="%" /></span>
+                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Manual Effort Saved</span>
+                        </div>
+                    </div>
+                </section>
+
+                {/* EXPERIENCE SECTION */}
+                <section id="experience" className="scroll-mt-24">
+                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'experience' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Experience</h2>
+                    <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+                        {[
+                            {
+                                role: "Technical Associate (HO)",
+                                company: "Open Links Foundation",
+                                logo: "https://www.openlinksfoundation.org/images/openlinksFoundationsLogo.png",
+                                period: "Dec 2024 - Present",
+                                points: ["Built automated Exam Pipeline.", "Developed Fuzzy Matching engine.", "Architected Scholarship Dashboards."]
+                            },
+                            {
+                                role: "Java dev. Intern",
+                                company: "TechnoHacks Edutech",
+                                logo: "https://technohacks.co.in/wp-content/uploads/2024/08/cropped-png-transperant-Copy-1.png",
+                                period: "Oct 2023 - Dec 2023",
+                                points: ["Developed GUI-based ATM simulations.", "Applied OOP principles for tools."]
+                            }
+                        ].map((exp, idx) => (
+                            <motion.div key={idx} whileHover={{ y: -8 }} className={`p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-50 border-black/5"} shadow-xl transition-all`}>
+                                <div className="flex flex-col items-start gap-4 md:gap-6">
+                                    <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center p-3 bg-white overflow-hidden shadow-md">
+                                        <img src={exp.logo} alt={exp.company} className="w-full h-auto object-contain" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl md:text-2xl font-bold leading-tight">{exp.role}</h3>
+                                        <p className="text-cyan-500 font-bold text-xs md:text-sm mt-1 uppercase tracking-widest">{exp.company}</p>
+                                    </div>
+                                    <div className="space-y-4 pt-6 border-t w-full border-white/10 text-sm md:text-base opacity-60 leading-relaxed">
+                                        <p className="text-[9px] md:text-[10px] font-black tracking-widest uppercase opacity-40">{exp.period}</p>
+                                        <ul className="space-y-3">
+                                            {exp.points.map((p, i) => <li key={i}>• {p}</li>)}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* SKILLS SECTION */}
+                <section id="skills" className="scroll-mt-24">
+                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 text-center font-bold transition-all ${activeSection === 'skills' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Skills</h2>
+                    <div className="flex flex-wrap justify-center gap-4 md:gap-10 max-w-4xl mx-auto">
+                        {skills.map((skill) => (
+                            <Magnetic key={skill.name} distance={0.3}>
+                                <div className="relative group">
+                                    <motion.div whileHover={{ scale: 1.1 }} className={`w-16 h-16 md:w-24 md:h-24 rounded-full border flex items-center justify-center p-4 md:p-5 transition-all duration-500 ${dark ? "border-white/10 bg-neutral-900/50 hover:border-cyan-500/50" : "border-black/10 bg-neutral-50 hover:border-cyan-500/50"}`}>
+                                        <img src={skill.icon} alt={skill.name} className={`w-8 h-8 md:w-12 md:h-12 object-contain transition-all ${dark ? "grayscale group-hover:grayscale-0" : ""}`} />
+                                    </motion.div>
+                                    <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50">
+                                        <div className="bg-cyan-600 text-white px-3 py-2 rounded-xl shadow-2xl flex flex-col items-center min-w-[90px] md:min-w-[110px] relative">
+                                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">{skill.name}</span>
+                                            <span className="text-[7px] md:text-[8px] font-bold opacity-80 uppercase tracking-tighter">{skill.level}</span>
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-cyan-600 rotate-45" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Magnetic>
+                        ))}
+                    </div>
+                </section>
+
+                {/* PROJECTS SECTION */}
                 <section id="projects" className="scroll-mt-24">
-                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'projects' ? 'text-cyan-500' : 'opacity-30'}`}>Featured Projects [cite: 22]</h2>
+                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'projects' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Featured Projects</h2>
                     <div className="space-y-8 md:space-y-12">
                         {projectData.map((proj, idx) => (
-                            <ProjectCard key={idx} project={proj} dark={dark} onImageClick={setSelectedImg} />
+                            <ProjectCard key={idx} project={proj} dark={dark} />
                         ))}
+                    </div>
+                </section>
+
+                {/* CONTACT SECTION */}
+                <section id="contact" className="scroll-mt-24">
+                    <h2 className={`text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight transition-all`}>
+                        I've got just what you need. <br />
+                        <span className="text-cyan-500 underline decoration-cyan-500 underline-offset-8">Let's talk.</span>
+                    </h2>
+                    
+                    <div className="grid md:grid-cols-2 gap-12 md:gap-24">
+                        {/* LEFT COLUMN: LINKS */}
+                        <div className="space-y-6 md:space-y-12">
+                            {[
+                                { 
+                                    icon: <Icons.Mail />, 
+                                    val: "omkarsinare0@gmail.com", 
+                                    href: "mailto:omkarsinare0@gmail.com" 
+                                },
+                                { 
+                                    icon: <Icons.Linkedin />, 
+                                    val: "linkedin.com/in/omkarsinare", 
+                                    href: "https://www.linkedin.com/in/omkarsinare" 
+                                },
+                                { 
+                                    icon: <Icons.MapPin />, 
+                                    val: "Pune, Maharashtra", 
+                                    href: "https://maps.google.com" 
+                                }
+                            ].map((c, idx) => (
+                                <a 
+                                    key={idx} 
+                                    href={c.href} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="flex items-center gap-4 md:gap-6 group cursor-pointer w-fit"
+                                >
+                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-cyan-500/20 flex items-center justify-center text-cyan-500 transition-all group-hover:border-cyan-500 group-hover:bg-cyan-500/5">
+                                        {c.icon}
+                                    </div>
+                                    <span className="text-base md:text-xl opacity-60 group-hover:opacity-100 group-hover:text-cyan-400 transition-all font-medium">
+                                        {c.val}
+                                    </span>
+                                </a>
+                            ))}
+                        </div>
+
+                        {/* RIGHT COLUMN: FORM */}
+                        <form 
+                            action="https://formspree.io/f/xlgoqjpa" 
+                            method="POST" 
+                            className="space-y-4 md:space-y-5"
+                        >
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+                                <input 
+                                    type="text" 
+                                    name="name"
+                                    placeholder="Name" 
+                                    required
+                                    className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} 
+                                />
+                                <input 
+                                    type="email" 
+                                    name="email"
+                                    placeholder="Email" 
+                                    required
+                                    className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} 
+                                />
+                            </div>
+                            <textarea 
+                                name="message"
+                                placeholder="Message" 
+                                rows={5} 
+                                required
+                                className={`w-full p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm resize-none`} 
+                            />
+                            <button 
+                                type="submit" 
+                                className="w-full py-4 md:py-5 rounded-2xl bg-cyan-600 text-white font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-cyan-500 transition-all active:scale-[0.98] shadow-lg shadow-cyan-900/20"
+                            >
+                                Send Message <Icons.Send />
+                            </button>
+                        </form>
                     </div>
                 </section>
             </div>
 
-            <AnimatePresence>
-                {selectedImg && (
-                    <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setSelectedImg(null)}
-                        className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-10 cursor-zoom-out"
-                    >
-                        <button className="absolute top-6 right-6 md:top-10 md:right-10 text-white opacity-50 hover:opacity-100 transition-opacity z-[110]" onClick={() => setSelectedImg(null)}>
-                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                        </button>
-                        <motion.div 
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="relative w-full h-full max-w-7xl max-h-[85vh]"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <Image src={selectedImg} alt="Fullscreen View" fill className="object-contain" quality={100} priority />
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            <footer className={`w-full py-10 md:py-20 border-t ${dark ? "border-white/5" : "border-black/5"} text-center z-20`}>
-                <p className="text-[9px] md:text-[10px] font-black tracking-[0.4em] uppercase opacity-30">© 2026 Omkar Sinare. Engineered for scale. [cite: 1]</p>
+            <footer className="w-full py-10 md:py-24 text-center border-t border-white/5 mt-10 md:mt-20">
+                <p className="opacity-20 text-[9px] md:text-xs tracking-[1em] uppercase font-bold px-4">Omkar Sinare • Pune, Maharashtra</p>
             </footer>
         </main>
     );
