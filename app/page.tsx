@@ -100,6 +100,71 @@ const skills: Skill[] = [
     { name: "OpenCV", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg" }
 ];
 
+// Sub-component for Project Cards to manage individual 'Know More' states
+const ProjectCard = ({ project, dark }: { project: any, dark: boolean }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <motion.div className={`p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-100 border-black/10"} group hover:border-cyan-500/30 transition-all`}>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <h3 className="text-2xl md:text-4xl font-bold italic">{project.title}</h3>
+                <div className="flex flex-wrap gap-2">
+                    {project.tags.map((tag: string) => (
+                        <span key={tag} className="text-[9px] md:text-[10px] border border-cyan-500/30 text-cyan-500 px-3 py-1 rounded-full font-bold uppercase tracking-widest">
+                            {tag}
+                        </span>
+                    ))}
+                </div>
+            </div>
+            
+            <p className="opacity-60 max-w-2xl text-base md:text-lg mb-8">{project.desc}</p>
+
+            <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className={`mb-6 text-[10px] font-black tracking-widest uppercase py-2.5 px-8 rounded-full border transition-all ${dark ? "border-white/10 hover:bg-white/5" : "border-black/10 hover:bg-black/5"} text-cyan-500`}
+            >
+                {isExpanded ? "Show Less" : "Know More"}
+            </button>
+
+            {isExpanded && (
+                <motion.div 
+                    initial={{ opacity: 0, height: 0 }} 
+                    animate={{ opacity: 1, height: "auto" }} 
+                    className="pt-8 border-t border-white/5 overflow-hidden"
+                >
+                    <ul className="space-y-4 mb-12">
+                        {project.details.map((point: string, i: number) => (
+                            <li key={i} className="flex gap-4 text-sm md:text-base opacity-70 leading-relaxed">
+                                <span className="text-cyan-500 font-bold">0{i+1}.</span> {point}
+                            </li>
+                        ))}
+                    </ul>
+
+                    {project.hasArchitecture && (
+                        <div className="space-y-8">
+                            <h4 className="text-[10px] tracking-[0.4em] font-black uppercase text-cyan-500 opacity-80 mb-6">Project Architecture & Workflow</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Machine Learning Pipeline</p>
+                                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
+                                        <Image src={project.img1} alt="Workflow Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Technical System Architecture</p>
+                                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
+                                        <Image src={project.img2} alt="Architecture Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </motion.div>
+            )}
+        </motion.div>
+    );
+};
+
 export default function Home() {
     const [dark, setDark] = useState(true);
     const [activeSection, setActiveSection] = useState("");
@@ -135,6 +200,33 @@ export default function Home() {
     }, []);
 
     const emojiFilter = dark ? "brightness(1.2)" : "brightness(0.9)";
+
+    const projectData = [
+        { 
+            title: "Cyber Attack Detection System", 
+            desc: "Built a real-time system using Random Forest and CNN, optimized for intrusion detection.", 
+            tags: ["ML + DL", "Python", "Security"],
+            hasArchitecture: true,
+            details: [
+                "Developed a hybrid detection framework utilizing Random Forest and XGBoost for structured data classification, integrated with a CNN to identify complex spatial patterns.",
+                "Performed feature engineering and dimensionality reduction to isolate the top 10 most impactful features, significantly lowering computational latency.",
+                "Outcome: Achieved a high-performance, real-time monitoring system capable of flagging malicious activity with optimized model efficiency."
+            ],
+            img1: "/Screenshot 2026-04-11 152705.png",
+            img2: "/Screenshot 2026-04-11 152719.png"
+        },
+        { 
+            title: "Vinoba Platform (Data Analysis & Automation)", 
+            desc: "Engineered automated data tools handling 300,000+ rows, improving processing speed by 80%.", 
+            tags: ["Python", "Streamlit", "Apps Script"],
+            hasArchitecture: false,
+            details: [
+                "Scholarship Data Tool: Engineered a scalable data pipeline using Python and Streamlit to process 300,000+ rows in minutes, eliminating Excel dependencies.",
+                "Intelligent Name Matching System: Developed a token-based matching algorithm in Google Apps Script that outperformed standard lookup functions, reducing manual effort by 40%.",
+                "End-to-End Exam System: Designed and implemented a centralized system for center allocation, roll number generation, and digital admit card creation."
+            ]
+        }
+    ];
 
     return (
         <main className={`${dark ? "bg-black text-white" : "bg-white text-black"} transition-colors duration-700 min-h-screen font-sans selection:bg-cyan-500/30 overflow-x-hidden relative flex flex-col items-center`}>
@@ -231,7 +323,7 @@ export default function Home() {
                     <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                         {[
                             {
-                                role: "Data Analyst L1",
+                                role: "Technical Associate (HO)",
                                 company: "Open Links Foundation",
                                 logo: "https://www.openlinksfoundation.org/images/openlinksFoundationsLogo.png",
                                 period: "Dec 2024 - Present",
@@ -292,27 +384,18 @@ export default function Home() {
                 {/* PROJECTS SECTION */}
                 <section id="projects" className="scroll-mt-24">
                     <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'projects' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Featured Projects</h2>
-                    <div className="space-y-8 md:space-y-24">
-                        {[
-                            { title: "Cyber Attack Detection", desc: "Built a real-time system using Random Forest and CNN, optimized for intrusion detection.", tags: ["ML + DL", "Python", "Security"] },
-                            { title: "Ticklinks Project", desc: "Engineered a automated data tools handling 300,000+ rows, improving processing speed by 80%.", tags: ["Python", "Streamlit", "Big Data"] }
-                        ].map((proj, idx) => (
-                            <motion.div key={idx} className={`p-8 md:p-16 rounded-[2rem] md:rounded-[3rem] border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-100 border-black/10"} group hover:border-cyan-500/30 transition-colors`}>
-                                <h3 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6 italic">{proj.title}</h3>
-                                <p className="opacity-60 max-w-2xl text-base md:text-xl mb-8 md:mb-10">{proj.desc}</p>
-                                <div className="flex flex-wrap gap-3 md:gap-5 text-[9px] md:text-xs font-bold uppercase tracking-widest opacity-30 group-hover:opacity-100 transition-opacity">
-                                    {proj.tags.map(tag => <span key={tag} className="border border-current px-3 py-1 rounded-full">{tag}</span>)}
-                                </div>
-                            </motion.div>
+                    <div className="space-y-8 md:space-y-12">
+                        {projectData.map((proj, idx) => (
+                            <ProjectCard key={idx} project={proj} dark={dark} />
                         ))}
                     </div>
                 </section>
 
-                {/* CONTACT SECTION (UPDATED) */}
+                {/* CONTACT SECTION */}
                 <section id="contact" className="scroll-mt-24">
                     <h2 className={`text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight transition-all`}>
-                        I&apos;ve got just what you need. <br />
-                        <span className="text-cyan-500 underline decoration-cyan-500 underline-offset-8">Let&apos;s talk.</span>
+                        I've got just what you need. <br />
+                        <span className="text-cyan-500 underline decoration-cyan-500 underline-offset-8">Let's talk.</span>
                     </h2>
                     
                     <div className="grid md:grid-cols-2 gap-12 md:gap-24">
@@ -332,7 +415,7 @@ export default function Home() {
                                 { 
                                     icon: <Icons.MapPin />, 
                                     val: "Pune, Maharashtra", 
-                                    href: "https://www.google.com/maps/place/Pune,+Maharashtra/" 
+                                    href: "https://maps.google.com" 
                                 }
                             ].map((c, idx) => (
                                 <a 
