@@ -212,8 +212,8 @@ export default function Home() {
                 "Performed feature engineering and dimensionality reduction to isolate the top 10 most impactful features, significantly lowering computational latency.",
                 "Outcome: Achieved a high-performance, real-time monitoring system capable of flagging malicious activity with optimized model efficiency."
             ],
-            img1: "/Screenshot 2026-04-11 152705.png",
-            img2: "/Screenshot 2026-04-11 152719.png"
+            img1: "/cyber-arch-1.png",
+            img2: "/cyber-arch-2.png"
         },
         { 
             title: "Vinoba Platform (Data Analysis & Automation)", 
