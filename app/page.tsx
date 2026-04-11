@@ -139,7 +139,7 @@ export default function Home() {
             {/* TOGGLE BUTTON */}
             <div className="fixed top-6 right-6 z-50">
                 <Magnetic distance={0.2}>
-                    <button onClick={() => setDark(!dark)} className={`px-4 py-1.5 md:px-6 md:py-2 rounded-full border text-[9px] md:text-[10px] tracking-widest uppercase transition-all backdrop-blur-md ${dark ? "border-white/20 hover:bg-white/10" : "border-black/60 hover:bg-black/10"}`}>
+                    <button onClick={() => setDark(!dark)} className={`px-4 py-1.5 md:px-6 md:py-2 rounded-full border text-[9px] md:text-[10px] tracking-widest uppercase transition-all backdrop-blur-md font-bold ${dark ? "border-white/20 text-white hover:bg-white/10" : "border-black/40 text-black hover:bg-black/10"}`}>
                         {dark ? "Light" : "Dark"}
                     </button>
                 </Magnetic>
@@ -167,9 +167,24 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    <nav className="flex flex-wrap justify-center gap-6 md:gap-12 mt-16 md:mt-24 text-[10px] md:text-xs font-black tracking-[0.3em] uppercase">
+                    {/* UPDATED NAV: Now matches Dark/Light Toggle Button style */}
+                    <nav className="flex flex-wrap justify-center gap-4 md:gap-8 mt-16 md:mt-24">
                         {["ABOUT", "EXPERIENCE", "SKILLS", "PROJECTS", "CONTACT"].map((item) => (
-                            <Magnetic key={item}><a href={`#${item.toLowerCase()}`} className="opacity-40 hover:opacity-100 transition-opacity whitespace-nowrap">{item}</a></Magnetic>
+                            <Magnetic key={item} distance={0.25}>
+                                <a href={`#${item.toLowerCase()}`}>
+                                    <button 
+                                        className={`px-5 py-2 md:px-7 md:py-2.5 rounded-full border text-[9px] md:text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 backdrop-blur-md relative overflow-hidden group
+                                            ${dark 
+                                                ? "border-white/10 text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.03)] hover:border-cyan-500/50" 
+                                                : "border-black/10 text-black bg-black/5 shadow-[0_0_15px_rgba(0,0,0,0.03)] hover:border-cyan-600/50"
+                                            }`}
+                                    >
+                                        <span className="relative z-10 group-hover:text-cyan-500 transition-colors duration-300">{item}</span>
+                                        {/* Glowing inner background on hover */}
+                                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${dark ? "bg-cyan-500/5" : "bg-cyan-600/5"}`} />
+                                    </button>
+                                </a>
+                            </Magnetic>
                         ))}
                     </nav>
                 </div>
@@ -178,7 +193,7 @@ export default function Home() {
             {/* CONTENT WRAPPER */}
             <div className="w-full max-w-5xl px-6 space-y-32 md:space-y-60 py-20 md:py-40 relative z-20">
 
-                {/* SUMMARY SECTION - FIXED SPACING */}
+                {/* SUMMARY SECTION */}
                 <section id="about" className="scroll-mt-32 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
                     <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="md:pr-12">
                         <h2 className="text-3xl md:text-5xl font-bold mb-8 italic">Summary</h2>
