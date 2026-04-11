@@ -8,9 +8,33 @@ html {
 }
 
 body {
-  background: #000000; /* Standard for dark-themed portfolios */
-  color: #ffffff;
+  /* Removed hardcoded #000 to allow Next-Themes / Light Mode to work */
+  @apply bg-white text-black dark:bg-black dark:text-white;
   cursor: default;
+}
+
+/* --- Navigation Glow & Visibility Fix --- */
+@layer components {
+  .menu-link {
+    @apply transition-all duration-300 font-bold uppercase tracking-widest;
+    /* Light Mode Visibility */
+    color: #4a4a4a; 
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Dark Mode Visibility & Glow */
+  .dark .menu-link {
+    color: #e0e0e0;
+    text-shadow: 0 0 8px rgba(0, 180, 216, 0.4);
+  }
+
+  /* The "Glowing" Effect on Hover/Active */
+  .menu-link:hover, .menu-active {
+    color: #00b4d8 !important; /* Signature Cyan */
+    text-shadow: 0 0 12px rgba(0, 180, 216, 0.8), 
+                 0 0 20px rgba(0, 180, 216, 0.4);
+    transform: translateY(-1px);
+  }
 }
 
 /* --- Mobile Fixes: SEO & Spacing --- */
@@ -21,34 +45,34 @@ body {
   .hero-container { 
     min-height: auto !important; 
     height: auto !important;
-    padding-top: 100px !important;
-    padding-bottom: 40px !important; /* Manually tightens the gap */
+    padding-top: 80px !important;
+    padding-bottom: 20px !important; 
   }
 
-  /* 2. Fix the Menu (Prevents text from being cut off) */
+  /* 2. Fix the Menu (Glow remains visible here) */
   nav ul, .menu-container {
     display: flex !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
-    gap: 12px !important;
-    padding: 0 15px !important;
+    gap: 16px !important; /* Increased gap for better touch targets */
+    padding: 10px 15px !important;
   }
 
   nav a, .menu-link {
-    font-size: 13px !important;
-    letter-spacing: 0.5px !important;
+    font-size: 11px !important; /* Slightly smaller to prevent wrapping */
+    letter-spacing: 1px !important;
   }
 
   /* 3. General Section Spacing */
   section {
     min-height: auto !important;
-    padding-top: 50px !important;
-    padding-bottom: 50px !important;
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
   }
 
-  /* 4. Heading size (Prevents long text from breaking layout) */
+  /* 4. Heading size */
   h1 {
-    font-size: 1.8rem !important;
+    font-size: 1.6rem !important;
     line-height: 1.2 !important;
   }
 }
