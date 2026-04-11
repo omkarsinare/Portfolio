@@ -117,7 +117,6 @@ export default function Home() {
         return () => window.removeEventListener("mousemove", handleMouseMove);
     }, [mouseX, mouseY]);
 
-    // --- Observer for Active Section ---
     useEffect(() => {
         const sections = document.querySelectorAll("section[id]");
         const observer = new IntersectionObserver(
@@ -128,7 +127,7 @@ export default function Home() {
                     }
                 });
             },
-            { threshold: 0.4 } // Section must cover 40% of viewport to be "active"
+            { threshold: 0.4 }
         );
 
         sections.forEach((section) => observer.observe(section));
@@ -309,29 +308,85 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* CONTACT SECTION */}
+                {/* CONTACT SECTION (UPDATED) */}
                 <section id="contact" className="scroll-mt-24">
-                    <h2 className={`text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight transition-all ${activeSection === 'contact' ? 'title-glow-cyan' : ''}`}>I&apos;ve got just what you need. <br /><span className={`${activeSection === 'contact' ? 'text-cyan-500' : ''} underline decoration-cyan-500 underline-offset-8`}>Let&apos;s talk.</span></h2>
+                    <h2 className={`text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight transition-all`}>
+                        I&apos;ve got just what you need. <br />
+                        <span className="text-cyan-500 underline decoration-cyan-500 underline-offset-8">Let&apos;s talk.</span>
+                    </h2>
+                    
                     <div className="grid md:grid-cols-2 gap-12 md:gap-24">
+                        {/* LEFT COLUMN: LINKS */}
                         <div className="space-y-6 md:space-y-12">
                             {[
-                                { icon: <Icons.Mail />, val: "omkarsinare@gmail.com" },
-                                { icon: <Icons.Linkedin />, val: "linkedin.com/in/omkarsinare" },
-                                { icon: <Icons.MapPin />, val: "Pune, Maharashtra" }
+                                { 
+                                    icon: <Icons.Mail />, 
+                                    val: "omkarsinare0@gmail.com", 
+                                    href: "mailto:omkarsinare0@gmail.com" 
+                                },
+                                { 
+                                    icon: <Icons.Linkedin />, 
+                                    val: "linkedin.com/in/omkarsinare", 
+                                    href: "https://linkedin.com/in/omkarsinare" 
+                                },
+                                { 
+                                    icon: <Icons.MapPin />, 
+                                    val: "Pune, Maharashtra", 
+                                    href: "https://www.google.com/maps/place/Pune,+Maharashtra/" 
+                                }
                             ].map((c, idx) => (
-                                <div key={idx} className="flex items-center gap-4 md:gap-6 group cursor-default">
-                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-cyan-500/20 flex items-center justify-center text-cyan-500 transition-colors group-hover:border-cyan-500">{c.icon}</div>
-                                    <span className="text-base md:text-xl opacity-60 group-hover:opacity-100 transition-opacity font-medium">{c.val}</span>
-                                </div>
+                                <a 
+                                    key={idx} 
+                                    href={c.href} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="flex items-center gap-4 md:gap-6 group cursor-pointer w-fit"
+                                >
+                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-cyan-500/20 flex items-center justify-center text-cyan-500 transition-all group-hover:border-cyan-500 group-hover:bg-cyan-500/5">
+                                        {c.icon}
+                                    </div>
+                                    <span className="text-base md:text-xl opacity-60 group-hover:opacity-100 group-hover:text-cyan-400 transition-all font-medium">
+                                        {c.val}
+                                    </span>
+                                </a>
                             ))}
                         </div>
-                        <form className="space-y-4 md:space-y-5">
+
+                        {/* RIGHT COLUMN: FORM */}
+                        <form 
+                            action="https://formspree.io/f/xlgoqjpa" 
+                            method="POST" 
+                            className="space-y-4 md:space-y-5"
+                        >
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-                                <input type="text" placeholder="Name" className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} />
-                                <input type="email" placeholder="Email" className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} />
+                                <input 
+                                    type="text" 
+                                    name="name"
+                                    placeholder="Name" 
+                                    required
+                                    className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} 
+                                />
+                                <input 
+                                    type="email" 
+                                    name="email"
+                                    placeholder="Email" 
+                                    required
+                                    className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} 
+                                />
                             </div>
-                            <textarea placeholder="Message" rows={5} className={`w-full p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm resize-none`} />
-                            <button type="button" className="w-full py-4 md:py-5 rounded-2xl bg-cyan-600 text-white font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-cyan-500 transition-all active:scale-[0.98]">Send Message <Icons.Send /></button>
+                            <textarea 
+                                name="message"
+                                placeholder="Message" 
+                                rows={5} 
+                                required
+                                className={`w-full p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm resize-none`} 
+                            />
+                            <button 
+                                type="submit" 
+                                className="w-full py-4 md:py-5 rounded-2xl bg-cyan-600 text-white font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-cyan-500 transition-all active:scale-[0.98] shadow-lg shadow-cyan-900/20"
+                            >
+                                Send Message <Icons.Send />
+                            </button>
                         </form>
                     </div>
                 </section>
