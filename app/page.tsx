@@ -38,9 +38,6 @@ const Icons = {
     ),
     Home: () => (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-    ),
-    Send: () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
     )
 };
 
@@ -100,7 +97,6 @@ const skills: Skill[] = [
     { name: "OpenCV", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg" }
 ];
 
-// Sub-component for Project Cards to manage individual 'Know More' states
 const ProjectCard = ({ project, dark }: { project: any, dark: boolean }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -143,20 +139,35 @@ const ProjectCard = ({ project, dark }: { project: any, dark: boolean }) => {
                     {project.hasArchitecture && (
                         <div className="space-y-8">
                             <h4 className="text-[10px] tracking-[0.4em] font-black uppercase text-cyan-500 opacity-80 mb-6">Project Architecture & Workflow</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-4">
-                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Machine Learning Pipeline</p>
-                                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
-                                        <Image src={project.img1} alt="Workflow Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+                            
+                            {project.img1 && project.img2 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-4">
+                                        <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Machine Learning Pipeline</p>
+                                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
+                                            <Image src={project.img1} alt="Workflow Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Technical System Architecture</p>
+                                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
+                                            <Image src={project.img2} alt="Architecture Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="space-y-4">
-                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Technical System Architecture</p>
-                                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
-                                        <Image src={project.img2} alt="Architecture Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+                            ) : (
+                                <div className="max-w-2xl mx-auto space-y-4">
+                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest text-center">System Architecture & Workflow</p>
+                                    <div className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-2xl">
+                                        <Image 
+                                            src={project.img1} 
+                                            alt="Architecture Diagram" 
+                                            fill 
+                                            className="object-contain p-4 hover:scale-105 transition-transform duration-700" 
+                                        />
                                     </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     )}
                 </motion.div>
@@ -219,12 +230,13 @@ export default function Home() {
             title: "Vinoba Platform (Data Analysis & Automation)", 
             desc: "Engineered automated data tools handling 300,000+ rows, improving processing speed by 80%.", 
             tags: ["Python", "Streamlit", "Apps Script"],
-            hasArchitecture: false,
+            hasArchitecture: true,
             details: [
                 "Scholarship Data Tool: Engineered a scalable data pipeline using Python and Streamlit to process 300,000+ rows in minutes, eliminating Excel dependencies.",
                 "Intelligent Name Matching System: Developed a token-based matching algorithm in Google Apps Script that outperformed standard lookup functions, reducing manual effort by 40%.",
                 "End-to-End Exam System: Designed and implemented a centralized system for center allocation, roll number generation, and digital admit card creation."
-            ]
+            ],
+            img1: "/Exam-system.png"
         }
     ];
 
@@ -270,7 +282,7 @@ export default function Home() {
                     
                     <div className="h-[100px] md:h-[150px] flex items-center justify-center">
                         <div className="text-lg sm:text-2xl md:text-4xl font-bold max-w-4xl tracking-tight leading-snug">
-                            <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> <span style="filter: ${emojiFilter}">👋</span>`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records <span style="filter: ${emojiFilter}">📊</span>`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> <span style="filter: ${emojiFilter}">🛡️</span>`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation <span style="filter: ${emojiFilter}">⚡</span>`).pauseFor(1000).deleteAll().typeString(`Driven by data and a <span style="color: #06b6d4;">Cappuccino</span> <span style="filter: ${emojiFilter}">☕</span>`).pauseFor(2000).start(); }} />
+                            <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> 👋`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records 📊`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> 🛡️`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation ⚡`).pauseFor(1000).deleteAll().typeString(`Driven by data and a <span style="color: #06b6d4;">Cappuccino</span> ☕`).pauseFor(2000).start(); }} />
                         </div>
                     </div>
                     
@@ -319,7 +331,7 @@ export default function Home() {
 
                 {/* EXPERIENCE SECTION */}
                 <section id="experience" className="scroll-mt-24">
-                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'experience' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Experience</h2>
+                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'experience' ? 'text-cyan-500' : 'opacity-30'}`}>Experience</h2>
                     <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                         {[
                             {
@@ -360,7 +372,7 @@ export default function Home() {
 
                 {/* SKILLS SECTION */}
                 <section id="skills" className="scroll-mt-24">
-                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 text-center font-bold transition-all ${activeSection === 'skills' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Skills</h2>
+                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 text-center font-bold transition-all ${activeSection === 'skills' ? 'text-cyan-500' : 'opacity-30'}`}>Skills</h2>
                     <div className="flex flex-wrap justify-center gap-4 md:gap-10 max-w-4xl mx-auto">
                         {skills.map((skill) => (
                             <Magnetic key={skill.name} distance={0.3}>
@@ -383,7 +395,7 @@ export default function Home() {
 
                 {/* PROJECTS SECTION */}
                 <section id="projects" className="scroll-mt-24">
-                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'projects' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Featured Projects</h2>
+                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'projects' ? 'text-cyan-500' : 'opacity-30'}`}>Featured Projects</h2>
                     <div className="space-y-8 md:space-y-12">
                         {projectData.map((proj, idx) => (
                             <ProjectCard key={idx} project={proj} dark={dark} />
@@ -399,7 +411,6 @@ export default function Home() {
                     </h2>
                     
                     <div className="grid md:grid-cols-2 gap-12 md:gap-24">
-                        {/* LEFT COLUMN: LINKS */}
                         <div className="space-y-6 md:space-y-12">
                             {[
                                 { 
@@ -415,7 +426,7 @@ export default function Home() {
                                 { 
                                     icon: <Icons.MapPin />, 
                                     val: "Pune, Maharashtra", 
-                                    href: "https://maps.google.com" 
+                                    href: "#" 
                                 }
                             ].map((c, idx) => (
                                 <a 
@@ -435,7 +446,6 @@ export default function Home() {
                             ))}
                         </div>
 
-                        {/* RIGHT COLUMN: FORM */}
                         <form 
                             action="https://formspree.io/f/xlgoqjpa" 
                             method="POST" 
@@ -466,18 +476,14 @@ export default function Home() {
                             />
                             <button 
                                 type="submit" 
-                                className="w-full py-4 md:py-5 rounded-2xl bg-cyan-600 text-white font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-cyan-500 transition-all active:scale-[0.98] shadow-lg shadow-cyan-900/20"
+                                className="w-full py-4 md:py-5 rounded-2xl bg-cyan-600 text-white font-bold uppercase tracking-[0.2em] flex items-center justify-center hover:bg-cyan-500 transition-colors"
                             >
-                                Send Message <Icons.Send />
+                                Send Message
                             </button>
                         </form>
                     </div>
                 </section>
             </div>
-
-            <footer className="w-full py-10 md:py-24 text-center border-t border-white/5 mt-10 md:mt-20">
-                <p className="opacity-20 text-[9px] md:text-xs tracking-[1em] uppercase font-bold px-4">Omkar Sinare • Pune, Maharashtra</p>
-            </footer>
         </main>
     );
 }
