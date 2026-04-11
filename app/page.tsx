@@ -145,7 +145,7 @@ export default function Home() {
                 </Magnetic>
             </div>
 
-            {/* HERO SECTION - Responsive Height Fix */}
+            {/* HERO SECTION */}
             <section className="relative w-full max-w-7xl flex flex-col items-center justify-center min-h-[90vh] md:min-h-screen py-20">
                 <div key={dark ? "d" : "l"} className="relative flex items-center justify-center mb-10 md:mb-16">
                     {[0, 1, 2].map((i) => (
@@ -161,8 +161,7 @@ export default function Home() {
                 <div className="flex flex-col items-center text-center w-full px-6 z-20">
                     <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} className="tracking-[0.4em] md:tracking-[0.6em] text-[10px] md:text-xs uppercase font-bold mb-6">Data Analyst & Automation Engineer</motion.p>
                     
-                    {/* Fixed Height Container for Typewriter to prevent layout jump */}
-                    <div className="h-[100px] md:h-[120px] flex items-center justify-center">
+                    <div className="h-[120px] md:h-[150px] flex items-center justify-center">
                         <div className="text-xl sm:text-2xl md:text-4xl font-bold max-w-4xl tracking-tight leading-snug">
                             <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> <span style="filter: ${emojiFilter}">👋</span>`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records <span style="filter: ${emojiFilter}">📊</span>`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> <span style="filter: ${emojiFilter}">🛡️</span>`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation <span style="filter: ${emojiFilter}">⚡</span>`).pauseFor(1000).deleteAll().typeString(`Driven by data and a <span style="color: #06b6d4;">Cappuccino</span> <span style="filter: ${emojiFilter}">☕</span>`).pauseFor(2000).start(); }} />
                         </div>
@@ -176,23 +175,24 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* CONTENT WRAPPER - Max-width keeps it centered on wide monitors */}
+            {/* CONTENT WRAPPER */}
             <div className="w-full max-w-5xl px-6 space-y-32 md:space-y-60 py-20 md:py-40 relative z-20">
 
-                {/* SUMMARY SECTION */}
-                <section id="about" className="scroll-mt-32 grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-                    <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                {/* SUMMARY SECTION - FIXED SPACING */}
+                <section id="about" className="scroll-mt-32 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
+                    <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="md:pr-12">
                         <h2 className="text-3xl md:text-5xl font-bold mb-8 italic">Summary</h2>
                         <p className="text-lg md:text-xl leading-relaxed opacity-70 font-medium">I am a Data Engineer and Automation Specialist dedicated to solving operational bottlenecks. From processing 300k+ row datasets to building custom "AI-like" fuzzy matching engines, I transform manual chaos into scalable, automated systems.</p>
                     </motion.div>
-                    <div className="flex flex-row gap-10 md:gap-20 justify-start md:justify-end">
+                    
+                    <div className="flex flex-row gap-8 md:gap-16 justify-between md:justify-end items-start md:pt-20">
                         <div className="flex flex-col">
-                            <span className="text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={300000} suffix="+" /></span>
-                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold">Rows Handled</span>
+                            <span className="text-4xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={300000} suffix="+" /></span>
+                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Rows Handled</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={40} suffix="%" /></span>
-                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold">Manual Effort Saved</span>
+                            <span className="text-4xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={40} suffix="%" /></span>
+                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Manual Effort Saved</span>
                         </div>
                     </div>
                 </section>
