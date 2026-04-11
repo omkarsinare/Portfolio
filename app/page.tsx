@@ -231,17 +231,17 @@ export default function Home() {
                     <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                         {[
                             {
-                                role: "Technical Associate",
+                                role: "Data Analyst L1",
                                 company: "Open Links Foundation",
                                 logo: "https://www.openlinksfoundation.org/images/openlinksFoundationsLogo.png",
                                 period: "Dec 2024 - Present",
                                 points: ["Built automated Exam Pipeline.", "Developed Fuzzy Matching engine.", "Architected Scholarship Dashboards."]
                             },
                             {
-                                role: "Java Intern",
+                                role: "Java dev. Intern",
                                 company: "TechnoHacks Edutech",
                                 logo: "https://technohacks.co.in/wp-content/uploads/2024/08/cropped-png-transperant-Copy-1.png",
-                                period: "Oct 2023 - Nov 2023",
+                                period: "Oct 2023 - Dec 2023",
                                 points: ["Developed GUI-based ATM simulations.", "Applied OOP principles for tools."]
                             }
                         ].map((exp, idx) => (
@@ -295,7 +295,7 @@ export default function Home() {
                     <div className="space-y-8 md:space-y-24">
                         {[
                             { title: "Cyber Attack Detection", desc: "Built a real-time system using Random Forest and CNN, optimized for intrusion detection.", tags: ["ML + DL", "Python", "Security"] },
-                            { title: "Vinoba Data Automation", desc: "Engineered a Scholarship tool handling 300,000+ rows, improving processing speed by 80%.", tags: ["Python", "Streamlit", "Big Data"] }
+                            { title: "Ticklinks Project", desc: "Engineered a automated data tools handling 300,000+ rows, improving processing speed by 80%.", tags: ["Python", "Streamlit", "Big Data"] }
                         ].map((proj, idx) => (
                             <motion.div key={idx} className={`p-8 md:p-16 rounded-[2rem] md:rounded-[3rem] border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-100 border-black/10"} group hover:border-cyan-500/30 transition-colors`}>
                                 <h3 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6 italic">{proj.title}</h3>
