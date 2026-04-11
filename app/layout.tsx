@@ -12,9 +12,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// SEO Update: Changed 'Onkar' to 'Omkar' to match your branding
 export const metadata: Metadata = {
-  title: "Onkar Sinare | Portfolio",
-  description: "Data Analyst & Automation Engineer Portfolio",
+  title: "Omkar Sinare | Data Analyst & Automation Engineer",
+  description: "Official portfolio of Omkar Sinare, specializing in Data Engineering, Automation, and Cyber Attack detection.",
 };
 
 export default function RootLayout({
@@ -25,9 +26,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      /* Removed 'h-full' to prevent forced empty vertical space */
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex flex-col bg-black text-white">
+        {children}
+      </body>
     </html>
   );
 }
