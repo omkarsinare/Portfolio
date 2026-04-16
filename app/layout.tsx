@@ -12,12 +12,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// SEO Update: Changed 'Onkar' to 'Omkar' to match your branding
+// SEO Update: Metadata for Google Search Console and branding
 export const metadata: Metadata = {
   title: "Omkar Sinare | Computer Engineer",
-  description: "Official portfolio of Omkar Sinare, specializing in Data Engineering, Automation, ans AIML",
+  description: "Official portfolio of Omkar Sinare, specializing in Data Engineering, Automation, and AIML",
   verification: {
-    google: 'google4120133f8ae0ae1a', // Paste your code here
+    google: "Mnoa_EMSVg0m5e0PG4dLzXcJJqpPGj_DQGyYr4zCkBI",
   },
 };
 
