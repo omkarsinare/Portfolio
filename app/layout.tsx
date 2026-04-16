@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "Omkar Sinare | Computer Engineer",
   description: "Official portfolio of Omkar Sinare, specializing in Data Engineering, Automation, ans AIML",
   verification: {
-    google: 'google4120133f8ae0ae1a.html', // Paste your code here
+    google: 'google4120133f8ae0ae1a', // Paste your code here
   },
 };
 
