@@ -311,7 +311,23 @@ export default function Home() {
             )}
 
             {/* CURSOR GLOW */}
-            <motion.div className="pointer-events-none fixed inset-0 z-30 opacity-40" style={{ background: `radial-gradient(600px circle at ${springX}px ${springY}px, ${dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)"}, transparent 80%)` }} />
+            <motion.div 
+                className="pointer-events-none fixed inset-0 z-30" 
+                style={{ 
+                    background: useMotionValue('').get() 
+                }}
+            >
+                <motion.div
+                    className="absolute w-96 h-96 rounded-full -translate-x-1/2 -translate-y-1/2"
+                    style={{
+                        left: springX,
+                        top: springY,
+                        background: dark 
+                            ? 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 20%, transparent 60%)'
+                            : 'radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 20%, transparent 60%)',
+                    }}
+                />
+            </motion.div>
 
             {/* SOCIAL ICONS - TOP LEFT */}
             <div className="fixed top-6 left-6 z-50 flex gap-3 items-center">
@@ -358,9 +374,69 @@ export default function Home() {
             {/* HERO SECTION */}
             <section id="home" className="relative w-full max-w-7xl flex flex-col items-center justify-center min-h-[70vh] md:min-h-screen py-10 md:py-20 scroll-mt-24">
                 <div key={dark ? "d" : "l"} className="relative flex items-center justify-center mb-8 md:mb-16">
-                    {[0, 1, 2].map((i) => (
-                        <motion.div key={i} className={`absolute rounded-full border-2 ${dark ? "border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "border-black/80 shadow-[0_0_20px_rgba(0,0,0,0.1)]"}`} style={{ width: 160, height: 160 }} initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: [0.5, 1.2, 8], opacity: [0, dark ? 0.5 : 0.4, 0] }} transition={{ duration: 8, repeat: Infinity, delay: i * 2.5, ease: [0.21, 0.85, 0.45, 1], times: [0, 0.1, 1] }} />
+                    {/* Energy particles gathering towards center */}
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                        <motion.div 
+                            key={`particle-${i}`}
+                            className={`absolute w-1 h-1 rounded-full ${dark ? "bg-cyan-400" : "bg-cyan-600"}`}
+                            style={{
+                                left: `${50 + Math.cos((i * Math.PI * 2) / 6) * 120}%`,
+                                top: `${50 + Math.sin((i * Math.PI * 2) / 6) * 120}%`,
+                            }}
+                            animate={{
+                                x: [0, -Math.cos((i * Math.PI * 2) / 6) * 120, -Math.cos((i * Math.PI * 2) / 6) * 120],
+                                y: [0, -Math.sin((i * Math.PI * 2) / 6) * 120, -Math.sin((i * Math.PI * 2) / 6) * 120],
+                                opacity: [0, 0.8, 0],
+                                scale: [0, 1.5, 0]
+                            }}
+                            transition={{
+                                duration: 8,
+                                repeat: Infinity,
+                                delay: i * 1.3,
+                                times: [0, 0.3, 1],
+                                ease: [0.21, 0.85, 0.45, 1]
+                            }}
+                        />
                     ))}
+                    
+                    {/* Expanding rings with energy gathering effect */}
+                    {[0, 1, 2].map((i) => (
+                        <motion.div 
+                            key={i} 
+                            className={`absolute rounded-full border-2 ${dark ? "border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "border-black/80 shadow-[0_0_20px_rgba(0,0,0,0.1)]"}`} 
+                            style={{ width: 160, height: 160 }} 
+                            initial={{ scale: 0.5, opacity: 0 }} 
+                            animate={{ 
+                                scale: [0.5, 0.5, 0.6, 1.2, 8],
+                                opacity: [0, 0, dark ? 0.7 : 0.5, dark ? 0.5 : 0.4, 0],
+                                borderWidth: [2, 2, 3, 2, 1]
+                            }} 
+                            transition={{ 
+                                duration: 8, 
+                                repeat: Infinity, 
+                                delay: i * 2.5, 
+                                ease: [0.21, 0.85, 0.45, 1], 
+                                times: [0, 0.05, 0.08, 0.1, 1] 
+                            }} 
+                        />
+                    ))}
+                    
+                    {/* Energy glow at center before ring emission */}
+                    <motion.div
+                        className={`absolute rounded-full ${dark ? "bg-cyan-400/30" : "bg-cyan-600/30"}`}
+                        style={{ width: 180, height: 180 }}
+                        animate={{
+                            opacity: [0, 0, 0.6, 0.3, 0],
+                            scale: [0.8, 0.8, 1.1, 1.3, 1.5]
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: [0.21, 0.85, 0.45, 1],
+                            times: [0, 0.05, 0.08, 0.1, 0.15]
+                        }}
+                    />
+                    
                     <motion.div whileHover={{ scale: 1.05 }} className="relative z-10">
                         <div className={`rounded-full p-1 border-2 ${dark ? "border-white/20" : "border-black/20"}`}>
                              <Image src="/profile.jpg" alt="Omkar Sinare" width={140} height={140} className={`rounded-full object-cover border-4 relative z-20 ${dark ? "border-white" : "border-black"} shadow-2xl md:w-[170px] md:h-[170px]`} priority />
@@ -373,7 +449,7 @@ export default function Home() {
                     
                     <div className="h-[100px] md:h-[150px] flex items-center justify-center">
                         <div className="text-lg sm:text-2xl md:text-4xl font-bold max-w-4xl tracking-tight leading-snug">
-                            <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> <span style="filter: ${emojiFilter}">👋</span>`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records <span style="filter: ${emojiFilter}">📊</span>`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> <span style="filter: ${emojiFilter}">🛡️</span>`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation <span style="filter: ${emojiFilter}">⚡</span>`).pauseFor(1000).deleteAll().typeString(`Driven by data and a <span style="color: #06b6d4;">Cappuccino</span> <span style="filter: ${emojiFilter}">☕</span>`).pauseFor(2000).start(); }} />
+                            <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> <span style="filter: ${emojiFilter}">👋</span>`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records <span style="filter: ${emojiFilter}">📊</span>`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> <span style="filter: ${emojiFilter}">🛡️</span>`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation <span style="filter: ${emojiFilter}">⚡</span>`).pauseFor(1000).deleteAll().typeString(`Driven by data and a <span style="color: #06b6d4;">Cappuccino</span> <span style="filter: ${emojiFilter}">☕</span>`).pauseFor(1000).deleteAll().typeString(`<span style="filter: ${emojiFilter}">🏊‍♂️</span> Water feels like <span style="color: #06b6d4;">home</span>`).pauseFor(2000).start(); }} />
                         </div>
                     </div>
                     
