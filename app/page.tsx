@@ -41,6 +41,9 @@ const Icons = {
     ),
     Send: () => (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+    ),
+    Phone: () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
     )
 };
 
@@ -172,6 +175,25 @@ export default function Home() {
     const mouseY = useMotionValue(0);
     const springX = useSpring(mouseX, { stiffness: 100, damping: 25 });
     const springY = useSpring(mouseY, { stiffness: 100, damping: 25 });
+    const [stars, setStars] = useState<{ x: number; y: number; size: number; opacity: number; twinkle: number }[]>([]);
+
+    // Generate stars on mount
+    useEffect(() => {
+        const generateStars = () => {
+            const newStars = [];
+            for (let i = 0; i < 200; i++) {
+                newStars.push({
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    size: Math.random() * 2 + 0.5,
+                    opacity: Math.random() * 0.7 + 0.3,
+                    twinkle: Math.random() * 3 + 2
+                });
+            }
+            setStars(newStars);
+        };
+        generateStars();
+    }, []);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -231,8 +253,103 @@ export default function Home() {
     return (
         <main className={`${dark ? "bg-black text-white" : "bg-white text-black"} transition-colors duration-700 min-h-screen font-sans selection:bg-cyan-500/30 overflow-x-hidden relative flex flex-col items-center`}>
 
+            {/* SPACE BACKGROUND */}
+            {dark && (
+                <div className="fixed inset-0 z-0 overflow-hidden">
+                    {/* Stars */}
+                    {stars.map((star, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute rounded-full bg-white"
+                            style={{
+                                left: `${star.x}%`,
+                                top: `${star.y}%`,
+                                width: star.size,
+                                height: star.size,
+                            }}
+                            animate={{
+                                opacity: [star.opacity, star.opacity * 0.3, star.opacity],
+                            }}
+                            transition={{
+                                duration: star.twinkle,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        />
+                    ))}
+
+                    {/* Nebula clouds - deep in space */}
+                    <div className="absolute top-[20%] left-[10%] w-[600px] h-[600px] rounded-full bg-purple-900/5 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
+                    <div className="absolute bottom-[10%] right-[15%] w-[500px] h-[500px] rounded-full bg-blue-900/5 blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
+                    <div className="absolute top-[50%] right-[25%] w-[400px] h-[400px] rounded-full bg-cyan-900/4 blur-[90px] animate-pulse" style={{ animationDuration: '12s' }} />
+
+                    {/* Black hole effect - subtle vortex */}
+                    <div className="absolute top-[15%] right-[20%] w-[300px] h-[300px]">
+                        <motion.div
+                            className="absolute inset-0 rounded-full"
+                            style={{
+                                background: 'radial-gradient(circle, transparent 30%, rgba(139, 92, 246, 0.03) 50%, rgba(59, 130, 246, 0.02) 70%, transparent 100%)',
+                            }}
+                            animate={{
+                                rotate: 360,
+                                scale: [1, 1.1, 1],
+                            }}
+                            transition={{
+                                rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                                scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+                            }}
+                        />
+                    </div>
+
+                    {/* Another black hole - bottom left */}
+                    <div className="absolute bottom-[20%] left-[15%] w-[250px] h-[250px]">
+                        <motion.div
+                            className="absolute inset-0 rounded-full"
+                            style={{
+                                background: 'radial-gradient(circle, transparent 35%, rgba(168, 85, 247, 0.03) 55%, rgba(96, 165, 250, 0.02) 75%, transparent 100%)',
+                            }}
+                            animate={{
+                                rotate: -360,
+                                scale: [1, 1.15, 1],
+                            }}
+                            transition={{
+                                rotate: { duration: 25, repeat: Infinity, ease: "linear" },
+                                scale: { duration: 5, repeat: Infinity, ease: "easeInOut" }
+                            }}
+                        />
+                    </div>
+
+                    {/* Distant galaxy glow */}
+                    <div className="absolute top-[40%] left-[5%] w-[200px] h-[200px] rounded-full bg-indigo-900/3 blur-[80px]" />
+                </div>
+            )}
+
             {/* CURSOR GLOW */}
             <motion.div className="pointer-events-none fixed inset-0 z-30 opacity-40" style={{ background: `radial-gradient(600px circle at ${springX}px ${springY}px, ${dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)"}, transparent 80%)` }} />
+
+            {/* SOCIAL ICONS - TOP LEFT */}
+            <div className="fixed top-6 left-6 z-50 flex gap-3">
+                <Magnetic distance={0.3}>
+                    <a href="https://github.com/omkarsinare/Portfolio" target="_blank" rel="noopener noreferrer" className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all backdrop-blur-md ${dark ? "bg-neutral-900/80 border-white/10 text-white hover:border-cyan-500 hover:text-cyan-500" : "bg-neutral-100 border-black/20 text-black hover:border-cyan-600 hover:text-cyan-600"}`}>
+                        <Icons.Github />
+                    </a>
+                </Magnetic>
+                <Magnetic distance={0.3}>
+                    <a href="https://www.linkedin.com/in/omkar-sinare-4aaab8229/" target="_blank" rel="noopener noreferrer" className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all backdrop-blur-md ${dark ? "bg-neutral-900/80 border-white/10 text-white hover:border-cyan-500 hover:text-cyan-500" : "bg-neutral-100 border-black/20 text-black hover:border-cyan-600 hover:text-cyan-600"}`}>
+                        <Icons.Linkedin />
+                    </a>
+                </Magnetic>
+                <Magnetic distance={0.3}>
+                    <a href="mailto:omkarsinare0@gmail.com" className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all backdrop-blur-md ${dark ? "bg-neutral-900/80 border-white/10 text-white hover:border-cyan-500 hover:text-cyan-500" : "bg-neutral-100 border-black/20 text-black hover:border-cyan-600 hover:text-cyan-600"}`}>
+                        <Icons.Mail />
+                    </a>
+                </Magnetic>
+                <Magnetic distance={0.3}>
+                    <a href="tel:+918669068591" className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all backdrop-blur-md ${dark ? "bg-neutral-900/80 border-white/10 text-white hover:border-cyan-500 hover:text-cyan-500" : "bg-neutral-100 border-black/20 text-black hover:border-cyan-600 hover:text-cyan-600"}`}>
+                        <Icons.Phone />
+                    </a>
+                </Magnetic>
+            </div>
 
             {/* HOME BUTTON */}
             <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">
@@ -410,7 +527,7 @@ export default function Home() {
                                 { 
                                     icon: <Icons.Linkedin />, 
                                     val: "linkedin.com/in/omkarsinare", 
-                                    href: "https://www.linkedin.com/in/omkarsinare" 
+                                    href: "https://www.linkedin.com/in/omkar-sinare-4aaab8229/" 
                                 },
                                 { 
                                     icon: <Icons.MapPin />, 
