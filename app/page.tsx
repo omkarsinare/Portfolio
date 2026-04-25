@@ -256,7 +256,7 @@ export default function Home() {
             {/* SPACE BACKGROUND */}
             {dark && (
                 <div className="fixed inset-0 z-0 overflow-hidden">
-                    {/* Stars */}
+                    {/* Stars - multiple layers */}
                     {stars.map((star, i) => (
                         <motion.div
                             key={i}
@@ -278,49 +278,35 @@ export default function Home() {
                         />
                     ))}
 
-                    {/* Nebula clouds - deep in space */}
-                    <div className="absolute top-[20%] left-[10%] w-[600px] h-[600px] rounded-full bg-purple-900/5 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
-                    <div className="absolute bottom-[10%] right-[15%] w-[500px] h-[500px] rounded-full bg-blue-900/5 blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
-                    <div className="absolute top-[50%] right-[25%] w-[400px] h-[400px] rounded-full bg-cyan-900/4 blur-[90px] animate-pulse" style={{ animationDuration: '12s' }} />
-
-                    {/* Black hole effect - subtle vortex */}
-                    <div className="absolute top-[15%] right-[20%] w-[300px] h-[300px]">
-                        <motion.div
-                            className="absolute inset-0 rounded-full"
-                            style={{
-                                background: 'radial-gradient(circle, transparent 30%, rgba(139, 92, 246, 0.03) 50%, rgba(59, 130, 246, 0.02) 70%, transparent 100%)',
-                            }}
-                            animate={{
-                                rotate: 360,
-                                scale: [1, 1.1, 1],
-                            }}
-                            transition={{
-                                rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-                                scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-                            }}
-                        />
+                    {/* Main Galaxy/Nebula band - horizontal across center */}
+                    <div className="absolute top-[20%] left-0 right-0 h-[60vh]">
+                        {/* Purple/Pink nebula regions */}
+                        <div className="absolute top-[10%] left-[5%] w-[800px] h-[500px] rounded-full bg-purple-600/20 blur-[150px] animate-pulse" style={{ animationDuration: '8s' }} />
+                        <div className="absolute top-[20%] right-[10%] w-[700px] h-[450px] rounded-full bg-pink-600/15 blur-[130px] animate-pulse" style={{ animationDuration: '10s' }} />
+                        
+                        {/* Blue nebula regions */}
+                        <div className="absolute top-[30%] left-[20%] w-[900px] h-[600px] rounded-full bg-blue-600/25 blur-[160px] animate-pulse" style={{ animationDuration: '12s' }} />
+                        <div className="absolute top-[15%] right-[25%] w-[600px] h-[400px] rounded-full bg-blue-500/20 blur-[140px] animate-pulse" style={{ animationDuration: '9s' }} />
+                        
+                        {/* Cyan/Teal accents */}
+                        <div className="absolute top-[40%] left-[30%] w-[700px] h-[500px] rounded-full bg-cyan-500/15 blur-[120px] animate-pulse" style={{ animationDuration: '11s' }} />
+                        <div className="absolute top-[25%] right-[15%] w-[500px] h-[350px] rounded-full bg-teal-500/12 blur-[110px] animate-pulse" style={{ animationDuration: '13s' }} />
+                        
+                        {/* Orange/Amber warm spots */}
+                        <div className="absolute top-[35%] left-[10%] w-[400px] h-[300px] rounded-full bg-orange-600/10 blur-[100px] animate-pulse" style={{ animationDuration: '7s' }} />
+                        <div className="absolute top-[50%] right-[30%] w-[350px] h-[250px] rounded-full bg-amber-600/8 blur-[90px] animate-pulse" style={{ animationDuration: '14s' }} />
+                        
+                        {/* Magenta highlights */}
+                        <div className="absolute top-[20%] left-[40%] w-[600px] h-[400px] rounded-full bg-fuchsia-600/18 blur-[135px] animate-pulse" style={{ animationDuration: '10s' }} />
                     </div>
 
-                    {/* Another black hole - bottom left */}
-                    <div className="absolute bottom-[20%] left-[15%] w-[250px] h-[250px]">
-                        <motion.div
-                            className="absolute inset-0 rounded-full"
-                            style={{
-                                background: 'radial-gradient(circle, transparent 35%, rgba(168, 85, 247, 0.03) 55%, rgba(96, 165, 250, 0.02) 75%, transparent 100%)',
-                            }}
-                            animate={{
-                                rotate: -360,
-                                scale: [1, 1.15, 1],
-                            }}
-                            transition={{
-                                rotate: { duration: 25, repeat: Infinity, ease: "linear" },
-                                scale: { duration: 5, repeat: Infinity, ease: "easeInOut" }
-                            }}
-                        />
-                    </div>
-
-                    {/* Distant galaxy glow */}
-                    <div className="absolute top-[40%] left-[5%] w-[200px] h-[200px] rounded-full bg-indigo-900/3 blur-[80px]" />
+                    {/* Additional scattered nebula clouds */}
+                    <div className="absolute top-[5%] left-[15%] w-[500px] h-[350px] rounded-full bg-violet-600/15 blur-[120px] animate-pulse" style={{ animationDuration: '9s' }} />
+                    <div className="absolute bottom-[10%] right-[20%] w-[550px] h-[400px] rounded-full bg-indigo-600/18 blur-[130px] animate-pulse" style={{ animationDuration: '11s' }} />
+                    
+                    {/* Dark matter regions (darker areas for contrast) */}
+                    <div className="absolute top-[40%] right-[35%] w-[400px] h-[400px] rounded-full bg-black/40 blur-[100px]" />
+                    <div className="absolute bottom-[20%] left-[25%] w-[350px] h-[350px] rounded-full bg-black/35 blur-[90px]" />
                 </div>
             )}
 
@@ -328,7 +314,7 @@ export default function Home() {
             <motion.div className="pointer-events-none fixed inset-0 z-30 opacity-40" style={{ background: `radial-gradient(600px circle at ${springX}px ${springY}px, ${dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)"}, transparent 80%)` }} />
 
             {/* SOCIAL ICONS - TOP LEFT */}
-            <div className="fixed top-6 left-6 z-50 flex gap-3">
+            <div className="fixed top-6 left-6 z-50 flex gap-3 items-center">
                 <Magnetic distance={0.3}>
                     <a href="https://github.com/omkarsinare/Portfolio" target="_blank" rel="noopener noreferrer" className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all backdrop-blur-md ${dark ? "bg-neutral-900/80 border-white/10 text-white hover:border-cyan-500 hover:text-cyan-500" : "bg-neutral-100 border-black/20 text-black hover:border-cyan-600 hover:text-cyan-600"}`}>
                         <Icons.Github />
@@ -361,9 +347,9 @@ export default function Home() {
             </div>
 
             {/* TOGGLE BUTTON */}
-            <div className="fixed top-6 right-6 z-50">
+            <div className="fixed top-6 right-6 z-50 flex items-center" style={{ height: '44px' }}>
                 <Magnetic distance={0.2}>
-                    <button onClick={() => setDark(!dark)} className={`px-4 py-1.5 md:px-6 md:py-2 rounded-full border text-[9px] md:text-[10px] tracking-widest uppercase transition-all backdrop-blur-md font-bold ${dark ? "border-white/20 text-white hover:bg-white/10" : "border-black/40 text-black hover:bg-black/10"}`}>
+                    <button onClick={() => setDark(!dark)} className={`h-11 px-4 md:px-6 rounded-full border text-[9px] md:text-[10px] tracking-widest uppercase transition-all backdrop-blur-md font-bold flex items-center ${dark ? "border-white/20 text-white hover:bg-white/10" : "border-black/40 text-black hover:bg-black/10"}`}>
                         {dark ? "Light" : "Dark"}
                     </button>
                 </Magnetic>
