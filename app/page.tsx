@@ -173,8 +173,8 @@ export default function Home() {
     const [activeSection, setActiveSection] = useState("");
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
-    const springX = useSpring(mouseX, { stiffness: 100, damping: 25 });
-    const springY = useSpring(mouseY, { stiffness: 100, damping: 25 });
+    const springX = useSpring(mouseX, { stiffness: 500, damping: 50 });
+    const springY = useSpring(mouseY, { stiffness: 500, damping: 50 });
     const [stars, setStars] = useState<{ x: number; y: number; size: number; opacity: number; twinkle: number }[]>([]);
 
     // Generate stars on mount
@@ -310,24 +310,17 @@ export default function Home() {
                 </div>
             )}
 
-            {/* CURSOR GLOW */}
+            {/* CURSOR GLOW - NO DELAY */}
             <motion.div 
-                className="pointer-events-none fixed inset-0 z-30" 
-                style={{ 
-                    background: useMotionValue('').get() 
+                className="pointer-events-none fixed z-30 w-96 h-96 rounded-full -translate-x-1/2 -translate-y-1/2"
+                style={{
+                    left: springX,
+                    top: springY,
+                    background: dark 
+                        ? 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 20%, transparent 60%)'
+                        : 'radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 20%, transparent 60%)',
                 }}
-            >
-                <motion.div
-                    className="absolute w-96 h-96 rounded-full -translate-x-1/2 -translate-y-1/2"
-                    style={{
-                        left: springX,
-                        top: springY,
-                        background: dark 
-                            ? 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 20%, transparent 60%)'
-                            : 'radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 20%, transparent 60%)',
-                    }}
-                />
-            </motion.div>
+            />
 
             {/* SOCIAL ICONS - TOP LEFT */}
             <div className="fixed top-6 left-6 z-50 flex gap-3 items-center">
@@ -374,32 +367,38 @@ export default function Home() {
             {/* HERO SECTION */}
             <section id="home" className="relative w-full max-w-7xl flex flex-col items-center justify-center min-h-[70vh] md:min-h-screen py-10 md:py-20 scroll-mt-24">
                 <div key={dark ? "d" : "l"} className="relative flex items-center justify-center mb-8 md:mb-16">
-                    {/* Energy particles gathering towards center */}
-                    {[0, 1, 2, 3, 4, 5].map((i) => (
-                        <motion.div 
-                            key={`particle-${i}`}
-                            className={`absolute w-1 h-1 rounded-full ${dark ? "bg-cyan-400" : "bg-cyan-600"}`}
-                            style={{
-                                left: `${50 + Math.cos((i * Math.PI * 2) / 6) * 120}%`,
-                                top: `${50 + Math.sin((i * Math.PI * 2) / 6) * 120}%`,
-                            }}
-                            animate={{
-                                x: [0, -Math.cos((i * Math.PI * 2) / 6) * 120, -Math.cos((i * Math.PI * 2) / 6) * 120],
-                                y: [0, -Math.sin((i * Math.PI * 2) / 6) * 120, -Math.sin((i * Math.PI * 2) / 6) * 120],
-                                opacity: [0, 0.8, 0],
-                                scale: [0, 1.5, 0]
-                            }}
-                            transition={{
-                                duration: 8,
-                                repeat: Infinity,
-                                delay: i * 1.3,
-                                times: [0, 0.3, 1],
-                                ease: [0.21, 0.85, 0.45, 1]
-                            }}
-                        />
-                    ))}
+                    {/* Energy particles only - appearing from different directions and growing as they approach */}
+                    {[0, 1, 2, 3, 4, 5].map((i) => {
+                        const angle = (i * Math.PI * 2) / 6;
+                        const startDistance = 150;
+                        return (
+                            <motion.div 
+                                key={`particle-${i}`}
+                                className={`absolute w-2 h-2 rounded-full ${dark ? "bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]" : "bg-cyan-600 shadow-[0_0_10px_rgba(8,145,178,0.8)]"}`}
+                                initial={{
+                                    x: Math.cos(angle) * startDistance,
+                                    y: Math.sin(angle) * startDistance,
+                                    opacity: 0,
+                                    scale: 0.5
+                                }}
+                                animate={{
+                                    x: [Math.cos(angle) * startDistance, 0, 0],
+                                    y: [Math.sin(angle) * startDistance, 0, 0],
+                                    opacity: [0, 1, 0],
+                                    scale: [0.5, 2.5, 0]
+                                }}
+                                transition={{
+                                    duration: 8,
+                                    repeat: Infinity,
+                                    delay: i * 1.3,
+                                    times: [0, 0.6, 1],
+                                    ease: [0.21, 0.85, 0.45, 1]
+                                }}
+                            />
+                        );
+                    })}
                     
-                    {/* Expanding rings with energy gathering effect */}
+                    {/* Expanding rings */}
                     {[0, 1, 2].map((i) => (
                         <motion.div 
                             key={i} 
@@ -420,22 +419,6 @@ export default function Home() {
                             }} 
                         />
                     ))}
-                    
-                    {/* Energy glow at center before ring emission */}
-                    <motion.div
-                        className={`absolute rounded-full ${dark ? "bg-cyan-400/30" : "bg-cyan-600/30"}`}
-                        style={{ width: 180, height: 180 }}
-                        animate={{
-                            opacity: [0, 0, 0.6, 0.3, 0],
-                            scale: [0.8, 0.8, 1.1, 1.3, 1.5]
-                        }}
-                        transition={{
-                            duration: 8,
-                            repeat: Infinity,
-                            ease: [0.21, 0.85, 0.45, 1],
-                            times: [0, 0.05, 0.08, 0.1, 0.15]
-                        }}
-                    />
                     
                     <motion.div whileHover={{ scale: 1.05 }} className="relative z-10">
                         <div className={`rounded-full p-1 border-2 ${dark ? "border-white/20" : "border-black/20"}`}>
