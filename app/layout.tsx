@@ -1,23 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// SEO Update: Metadata for Google Search Console and branding
 export const metadata: Metadata = {
-  title: "Omkar Sinare | Computer Engineer",
-  description: "Official portfolio of Omkar Sinare, specializing in Data Engineering, Automation, and AIML",
+  title: "Omkar Sinare | Data Engineer & Automation Specialist",
+  description:
+    "Portfolio of Omkar Sinare — Data Engineering, Automation, and ML/AI. Processing 300k+ rows, building fuzzy matching engines, and shipping real tools.",
   verification: {
     google: "Mnoa_EMSVg0m5e0PG4dLzXcJJqpPGj_DQGyYr4zCkBI",
+  },
+  openGraph: {
+    title: "Omkar Sinare | Data Engineer",
+    description: "Data Engineering, Automation & ML. Pune, Maharashtra.",
+    type: "website",
   },
 };
 
@@ -27,14 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      /* Removed 'h-full' to prevent forced empty vertical space */
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
-      <body className="flex flex-col bg-black text-white">
-        {children}
-      </body>
+    <html lang="en" className={`${inter.variable} antialiased`}>
+      <body className="bg-[#0A0A0A] text-white">{children}</body>
     </html>
   );
 }
