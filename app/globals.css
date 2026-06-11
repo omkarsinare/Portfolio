@@ -2,63 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-/* --- Existing Global Styles --- */
+/* ─── ROOT ─── */
+:root {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  @apply bg-white text-black dark:bg-black dark:text-white;
-  cursor: default;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* --- Mobile Fixes --- */
-@media (max-width: 768px) {
-  section:first-of-type, 
-  .hero-container { 
-    min-height: auto !important; 
-    height: auto !important;
-    padding-top: 80px !important;
-    padding-bottom: 20px !important; 
-  }
+/* ─── SELECTION ─── */
+::selection {
+  background: rgba(123, 156, 244, 0.25);
+}
 
-  nav ul, .menu-container {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 16px !important;
-    padding: 10px 15px !important;
+/* ─── SCROLLBAR (desktop only) ─── */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
   }
-
-  nav a, .menu-link {
-    font-size: 11px !important;
-    letter-spacing: 1px !important;
+  ::-webkit-scrollbar-track {
+    background: transparent;
   }
-
-  section {
-    min-height: auto !important;
-    padding-top: 40px !important;
-    padding-bottom: 40px !important;
+  ::-webkit-scrollbar-thumb {
+    background: rgba(123, 156, 244, 0.2);
+    border-radius: 999px;
   }
-
-  h1 {
-    font-size: 1.6rem !important;
-    line-height: 1.2 !important;
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(123, 156, 244, 0.4);
   }
 }
 
-/* --- Refined Title Glow Effect --- */
-/* Now used only for smaller section labels to keep them readable */
-.title-glow-cyan {
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.4), 
-               0 0 20px rgba(6, 182, 212, 0.2);
+/* ─── TYPEWRITER cursor ─── */
+.Typewriter__cursor {
+  color: #7B9CF4;
+  font-weight: 300;
 }
 
-/* --- Interactive Elements --- */
-a {
-  @apply transition-all duration-300;
+/* ─── FOCUS RING ─── */
+:focus-visible {
+  outline: 2px solid #7B9CF4;
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-input:focus, textarea:focus {
-  @apply ring-2 ring-cyan-500/20;
+/* ─── INPUT placeholder ─── */
+input::placeholder,
+textarea::placeholder {
+  opacity: 0.4;
+}
+
+/* ─── REDUCED MOTION ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
