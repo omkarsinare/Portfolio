@@ -1,645 +1,861 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useMotionValue, useSpring, animate, useInView } from "framer-motion";
+import { motion, useMotionValue, useSpring, animate, useInView, useReducedMotion } from "framer-motion";
 import { useState, useEffect, useRef, ReactNode } from "react";
 import Typewriter from 'typewriter-effect';
 
-// --- TYPES & DATA ---
-interface MagneticProps {
-    children: ReactNode;
-    distance?: number;
-}
+// --- TYPES ---
+interface MagneticProps { children: ReactNode; distance?: number; }
+interface CounterProps { value: number; suffix?: string; }
+interface Skill { name: string; level: string; icon: string; }
 
-interface CounterProps {
-    value: number;
-    suffix?: string;
-}
-
-interface Skill {
-    name: string;
-    level: string;
-    icon: string;
-}
-
-// --- CUSTOM SVG ICONS ---
+// --- ICONS ---
 const Icons = {
-    Linkedin: () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect width="4" height="12" x="2" y="9" /><circle cx="4" cy="4" r="2" /></svg>
-    ),
-    Github: () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5-.73 1.02-1.08 2.25-1 3.5 0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
-    ),
-    Mail: () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
-    ),
-    MapPin: () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-    ),
-    Home: () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-    ),
-    Send: () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
-    ),
-    Phone: () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-    )
+  Linkedin: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+  ),
+  Github: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5-.73 1.02-1.08 2.25-1 3.5 0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+  ),
+  Mail: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+  ),
+  MapPin: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+  ),
+  ArrowUp: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+  ),
+  Send: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+  ),
+  Phone: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+  ),
+  ExternalLink: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+  ),
 };
 
-const Magnetic = ({ children, distance = 0.5 }: MagneticProps) => {
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-    const springX = useSpring(mouseX, { stiffness: 150, damping: 15 });
-    const springY = useSpring(mouseY, { stiffness: 150, damping: 15 });
+// Magnetic only on non-touch / capable devices
+const Magnetic = ({ children, distance = 0.4 }: MagneticProps) => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { stiffness: 200, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 200, damping: 20 });
+  const shouldReduce = useReducedMotion();
+  const [isFine, setIsFine] = useState(false);
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const { clientX, clientY, currentTarget } = e;
-        const { left, top, width, height } = currentTarget.getBoundingClientRect();
-        const centerX = left + width / 2;
-        const centerY = top + height / 2;
-        mouseX.set((clientX - centerX) * distance);
-        mouseY.set((clientY - centerY) * distance);
-    };
+  useEffect(() => {
+    setIsFine(window.matchMedia("(pointer: fine)").matches);
+  }, []);
 
-    const reset = () => { mouseX.set(0); mouseY.set(0); };
+  if (shouldReduce || !isFine) return <>{children}</>;
 
-    return (
-        <motion.div onMouseMove={handleMouseMove} onMouseLeave={reset} style={{ x: springX, y: springY }}>
-            {children}
-        </motion.div>
-    );
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { clientX, clientY, currentTarget } = e;
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    mouseX.set((clientX - left - width / 2) * distance);
+    mouseY.set((clientY - top - height / 2) * distance);
+  };
+  const reset = () => { mouseX.set(0); mouseY.set(0); };
+
+  return (
+    <motion.div onMouseMove={handleMouseMove} onMouseLeave={reset} style={{ x: springX, y: springY }}>
+      {children}
+    </motion.div>
+  );
 };
 
 const Counter = ({ value, suffix = "" }: CounterProps) => {
-    const ref = useRef<HTMLSpanElement>(null);
-    const inView = useInView(ref, { once: true });
-    const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+  const [count, setCount] = useState(0);
+  const shouldReduce = useReducedMotion();
 
-    useEffect(() => {
-        if (inView) {
-            const controls = animate(0, value, {
-                duration: 2,
-                onUpdate: (latest) => setCount(Math.floor(latest)),
-            });
-            return () => controls.stop();
-        }
-    }, [inView, value]);
+  useEffect(() => {
+    if (inView) {
+      if (shouldReduce) { setCount(value); return; }
+      const controls = animate(0, value, {
+        duration: 1.8,
+        ease: "easeOut",
+        onUpdate: (v) => setCount(Math.floor(v)),
+      });
+      return () => controls.stop();
+    }
+  }, [inView, value, shouldReduce]);
 
-    return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+};
+
+const FadeIn = ({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) => {
+  const shouldReduce = useReducedMotion();
+  return (
+    <motion.div
+      initial={shouldReduce ? {} : { opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
 };
 
 const skills: Skill[] = [
-    { name: "Python", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" },
-    { name: "PostgreSQL", level: "Learning", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
-    { name: "Next.js", level: "Learning", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" },
-    { name: "SQL", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" },
-    { name: "AWS", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" },
-    { name: "Git", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" },
-    { name: "Java", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" },
-    { name: "Streamlit", level: "Advanced", icon: "https://cdn.simpleicons.org/streamlit/FF4B4B" },
-    { name: "Pandas", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg" },
-    { name: "NumPy", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg" },
-    { name: "OpenCV", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg" }
+  { name: "Python", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" },
+  { name: "PostgreSQL", level: "Learning", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
+  { name: "Next.js", level: "Learning", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" },
+  { name: "SQL", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" },
+  { name: "AWS", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" },
+  { name: "Git", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" },
+  { name: "Java", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" },
+  { name: "Streamlit", level: "Advanced", icon: "https://cdn.simpleicons.org/streamlit/FF4B4B" },
+  { name: "Pandas", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg" },
+  { name: "NumPy", level: "Advanced", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg" },
+  { name: "OpenCV", level: "Intermediate", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg" },
 ];
 
-// Sub-component for Project Cards to manage individual 'Know More' states
-const ProjectCard = ({ project, dark }: { project: any, dark: boolean }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+const ProjectCard = ({ project, dark, index }: { project: any; dark: boolean; index: number }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
 
-    return (
-        <motion.div className={`p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-100 border-black/10"} group hover:border-cyan-500/30 transition-all`}>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <h3 className="text-2xl md:text-4xl font-bold italic">{project.title}</h3>
-                <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag: string) => (
-                        <span key={tag} className="text-[9px] md:text-[10px] border border-cyan-500/30 text-cyan-500 px-3 py-1 rounded-full font-bold uppercase tracking-widest">
-                            {tag}
-                        </span>
-                    ))}
-                </div>
+  return (
+    <FadeIn delay={index * 0.1}>
+      <div className={`group rounded-2xl border transition-all duration-300 overflow-hidden
+        ${dark ? "bg-[#111111] border-white/8 hover:border-white/20" : "bg-white border-black/8 hover:border-black/20"}
+      `}>
+        {/* Card header */}
+        <div className="p-7 md:p-10">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
+            <div>
+              <p className={`text-[10px] font-semibold tracking-[0.2em] uppercase mb-2 ${dark ? "text-[#7B9CF4]" : "text-[#3A6BDB]"}`}>
+                Project {String(index + 1).padStart(2, '0')}
+              </p>
+              <h3 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug">{project.title}</h3>
             </div>
-            
-            <p className="opacity-60 max-w-2xl text-base md:text-lg mb-8">{project.desc}</p>
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              {project.tags.map((tag: string) => (
+                <span key={tag} className={`text-[9px] font-semibold tracking-wider uppercase px-2.5 py-1 rounded-md
+                  ${dark ? "bg-white/6 text-white/50 border border-white/8" : "bg-black/4 text-black/50 border border-black/8"}
+                `}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+          <p className={`text-sm md:text-base leading-relaxed ${dark ? "text-white/55" : "text-black/55"}`}>
+            {project.desc}
+          </p>
+        </div>
 
-            <button 
-                onClick={() => setIsExpanded(!isExpanded)}
-                className={`mb-6 text-[10px] font-black tracking-widest uppercase py-2.5 px-8 rounded-full border transition-all ${dark ? "border-white/10 hover:bg-white/5" : "border-black/10 hover:bg-black/5"} text-cyan-500`}
+        {/* Expandable section */}
+        <div className={`border-t transition-colors ${dark ? "border-white/6" : "border-black/6"}`}>
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`w-full px-7 md:px-10 py-4 flex items-center justify-between text-left text-[11px] font-semibold tracking-[0.15em] uppercase transition-colors
+              ${dark ? "text-white/40 hover:text-[#7B9CF4]" : "text-black/40 hover:text-[#3A6BDB]"}
+            `}
+          >
+            {isExpanded ? "Show less" : "View details"}
+            <motion.span
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.25 }}
+              className="opacity-60"
             >
-                {isExpanded ? "Show Less" : "Know More"}
-            </button>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6"/></svg>
+            </motion.span>
+          </button>
 
-            {isExpanded && (
-                <motion.div 
-                    initial={{ opacity: 0, height: 0 }} 
-                    animate={{ opacity: 1, height: "auto" }} 
-                    className="pt-8 border-t border-white/5 overflow-hidden"
-                >
-                    <ul className="space-y-4 mb-12">
-                        {project.details.map((point: string, i: number) => (
-                            <li key={i} className="flex gap-4 text-sm md:text-base opacity-70 leading-relaxed">
-                                <span className="text-cyan-500 font-bold">0{i+1}.</span> {point}
-                            </li>
-                        ))}
-                    </ul>
+          <motion.div
+            initial={false}
+            animate={{ height: isExpanded ? "auto" : 0, opacity: isExpanded ? 1 : 0 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="px-7 md:px-10 pb-8">
+              <ul className="space-y-4 mb-8">
+                {project.details.map((point: string, i: number) => (
+                  <li key={i} className={`flex gap-4 text-sm leading-relaxed ${dark ? "text-white/60" : "text-black/60"}`}>
+                    <span className={`shrink-0 mt-0.5 font-mono text-xs font-bold ${dark ? "text-[#7B9CF4]" : "text-[#3A6BDB]"}`}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
 
-                    {project.hasArchitecture && (
-                        <div className="space-y-8">
-                            <h4 className="text-[10px] tracking-[0.4em] font-black uppercase text-cyan-500 opacity-80 mb-6">Project Architecture & Workflow</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-4">
-                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Machine Learning Pipeline</p>
-                                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
-                                        <Image src={project.img1} alt="Workflow Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
-                                    </div>
-                                </div>
-                                <div className="space-y-4">
-                                    <p className="text-[9px] font-bold opacity-40 uppercase tracking-widest">Technical System Architecture</p>
-                                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black/40">
-                                        <Image src={project.img2} alt="Architecture Diagram" fill className="object-cover hover:scale-105 transition-transform duration-700" />
-                                    </div>
-                                </div>
-                            </div>
+              {project.hasArchitecture && (
+                <div className="space-y-5">
+                  <p className={`text-[10px] font-semibold tracking-[0.2em] uppercase ${dark ? "text-white/30" : "text-black/30"}`}>
+                    Architecture
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {[
+                      { src: project.img1, label: "ML Pipeline" },
+                      { src: project.img2, label: "System Architecture" },
+                    ].map((img) => (
+                      <div key={img.label} className="space-y-2">
+                        <p className={`text-[9px] font-medium tracking-wider uppercase ${dark ? "text-white/25" : "text-black/25"}`}>{img.label}</p>
+                        <div className={`relative aspect-video rounded-xl overflow-hidden border ${dark ? "border-white/8 bg-black/40" : "border-black/8 bg-black/5"}`}>
+                          <Image src={img.src} alt={img.label} fill className="object-cover" />
                         </div>
-                    )}
-                </motion.div>
-            )}
-        </motion.div>
-    );
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </FadeIn>
+  );
 };
 
 export default function Home() {
-    const [dark, setDark] = useState(true);
-    const [activeSection, setActiveSection] = useState("");
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-    const springX = useSpring(mouseX, { stiffness: 500, damping: 50 });
-    const springY = useSpring(mouseY, { stiffness: 500, damping: 50 });
-    const [stars, setStars] = useState<{ x: number; y: number; size: number; opacity: number; twinkle: number }[]>([]);
+  const [dark, setDark] = useState(true);
+  const [activeSection, setActiveSection] = useState("home");
+  const [scrolled, setScrolled] = useState(false);
 
-    // Generate stars on mount
-    useEffect(() => {
-        const generateStars = () => {
-            const newStars = [];
-            for (let i = 0; i < 200; i++) {
-                newStars.push({
-                    x: Math.random() * 100,
-                    y: Math.random() * 100,
-                    size: Math.random() * 2 + 0.5,
-                    opacity: Math.random() * 0.7 + 0.3,
-                    twinkle: Math.random() * 3 + 2
-                });
-            }
-            setStars(newStars);
-        };
-        generateStars();
-    }, []);
+  // Scroll state for header
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            mouseX.set(e.clientX);
-            mouseY.set(e.clientY);
-        };
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => window.removeEventListener("mousemove", handleMouseMove);
-    }, [mouseX, mouseY]);
-
-    useEffect(() => {
-        const sections = document.querySelectorAll("section[id]");
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveSection(entry.target.id);
-                    }
-                });
-            },
-            { threshold: 0.4 }
-        );
-
-        sections.forEach((section) => observer.observe(section));
-        return () => sections.forEach((section) => observer.unobserve(section));
-    }, []);
-
-    const emojiFilter = dark ? "brightness(1.2)" : "brightness(0.9)";
-
-    const projectData = [
-        { 
-            title: "Cyber Attack Detection System", 
-            desc: "Built a real-time system using Random Forest and CNN, optimized for intrusion detection.", 
-            tags: ["ML + DL", "Python", "Cyber-Security"],
-            hasArchitecture: true,
-            details: [
-                "Developed a hybrid detection framework utilizing Random Forest and XGBoost for structured data classification, integrated with a CNN to identify complex spatial patterns.",
-                "Performed feature engineering and dimensionality reduction to isolate the top 10 most impactful features, significantly lowering computational latency.",
-                "Outcome: Achieved a high-performance, real-time monitoring system capable of flagging malicious activity with optimized model efficiency."
-            ],
-            img1: "/cyber-arch-2.png",
-            img2: "/cyber-arch-1.png"
-        },
-        { 
-            title: "Vinoba Platform (Data Analysis & Automation)", 
-            desc: "Engineered automated data tools handling 300,000+ rows, improving processing speed by 80%.", 
-            tags: ["Python", "Streamlit", "Apps Script"],
-            hasArchitecture: false,
-            details: [
-                "Scholarship Data Tool: Engineered a scalable data pipeline using Python and Streamlit to process 300,000+ rows in minutes, eliminating Excel dependencies.",
-                "Intelligent Name Matching System: Developed a token-based matching algorithm in Google Apps Script that outperformed standard lookup functions, reducing manual effort by 40%.",
-                "End-to-End Exam System: Designed and implemented a centralized system for center allocation, roll number generation, and digital admit card creation."
-            ]
-        }
-    ];
-
-    return (
-        <main className={`${dark ? "bg-black text-white" : "bg-white text-black"} transition-colors duration-700 min-h-screen font-sans selection:bg-cyan-500/30 overflow-x-hidden relative flex flex-col items-center`}>
-
-            {/* SPACE BACKGROUND */}
-            {dark && (
-                <div className="fixed inset-0 z-0 overflow-hidden">
-                    {/* Stars - multiple layers */}
-                    {stars.map((star, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute rounded-full bg-white"
-                            style={{
-                                left: `${star.x}%`,
-                                top: `${star.y}%`,
-                                width: star.size,
-                                height: star.size,
-                            }}
-                            animate={{
-                                opacity: [star.opacity, star.opacity * 0.3, star.opacity],
-                            }}
-                            transition={{
-                                duration: star.twinkle,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                        />
-                    ))}
-
-                    {/* Main Galaxy/Nebula band - horizontal across center */}
-                    <div className="absolute top-[20%] left-0 right-0 h-[60vh]">
-                        {/* Purple/Pink nebula regions */}
-                        <div className="absolute top-[10%] left-[5%] w-[800px] h-[500px] rounded-full bg-purple-600/20 blur-[150px] animate-pulse" style={{ animationDuration: '8s' }} />
-                        <div className="absolute top-[20%] right-[10%] w-[700px] h-[450px] rounded-full bg-pink-600/15 blur-[130px] animate-pulse" style={{ animationDuration: '10s' }} />
-                        
-                        {/* Blue nebula regions */}
-                        <div className="absolute top-[30%] left-[20%] w-[900px] h-[600px] rounded-full bg-blue-600/25 blur-[160px] animate-pulse" style={{ animationDuration: '12s' }} />
-                        <div className="absolute top-[15%] right-[25%] w-[600px] h-[400px] rounded-full bg-blue-500/20 blur-[140px] animate-pulse" style={{ animationDuration: '9s' }} />
-                        
-                        {/* Cyan/Teal accents */}
-                        <div className="absolute top-[40%] left-[30%] w-[700px] h-[500px] rounded-full bg-cyan-500/15 blur-[120px] animate-pulse" style={{ animationDuration: '11s' }} />
-                        <div className="absolute top-[25%] right-[15%] w-[500px] h-[350px] rounded-full bg-teal-500/12 blur-[110px] animate-pulse" style={{ animationDuration: '13s' }} />
-                        
-                        {/* Orange/Amber warm spots */}
-                        <div className="absolute top-[35%] left-[10%] w-[400px] h-[300px] rounded-full bg-orange-600/10 blur-[100px] animate-pulse" style={{ animationDuration: '7s' }} />
-                        <div className="absolute top-[50%] right-[30%] w-[350px] h-[250px] rounded-full bg-amber-600/8 blur-[90px] animate-pulse" style={{ animationDuration: '14s' }} />
-                        
-                        {/* Magenta highlights */}
-                        <div className="absolute top-[20%] left-[40%] w-[600px] h-[400px] rounded-full bg-fuchsia-600/18 blur-[135px] animate-pulse" style={{ animationDuration: '10s' }} />
-                    </div>
-
-                    {/* Additional scattered nebula clouds */}
-                    <div className="absolute top-[5%] left-[15%] w-[500px] h-[350px] rounded-full bg-violet-600/15 blur-[120px] animate-pulse" style={{ animationDuration: '9s' }} />
-                    <div className="absolute bottom-[10%] right-[20%] w-[550px] h-[400px] rounded-full bg-indigo-600/18 blur-[130px] animate-pulse" style={{ animationDuration: '11s' }} />
-                    
-                    {/* Dark matter regions (darker areas for contrast) */}
-                    <div className="absolute top-[40%] right-[35%] w-[400px] h-[400px] rounded-full bg-black/40 blur-[100px]" />
-                    <div className="absolute bottom-[20%] left-[25%] w-[350px] h-[350px] rounded-full bg-black/35 blur-[90px]" />
-                </div>
-            )}
-
-            {/* CURSOR GLOW - NO DELAY */}
-            <motion.div 
-                className="pointer-events-none fixed z-30 w-96 h-96 rounded-full -translate-x-1/2 -translate-y-1/2"
-                style={{
-                    left: springX,
-                    top: springY,
-                    background: dark 
-                        ? 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 20%, transparent 60%)'
-                        : 'radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 20%, transparent 60%)',
-                }}
-            />
-
-            {/* SOCIAL ICONS - TOP LEFT */}
-            <div className="fixed top-6 left-6 z-50 flex gap-3 items-center">
-                <Magnetic distance={0.3}>
-                    <a href="https://github.com/omkarsinare/Portfolio" target="_blank" rel="noopener noreferrer" className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all backdrop-blur-md ${dark ? "bg-neutral-900/80 border-white/10 text-white hover:border-cyan-500 hover:text-cyan-500" : "bg-neutral-100 border-black/20 text-black hover:border-cyan-600 hover:text-cyan-600"}`}>
-                        <Icons.Github />
-                    </a>
-                </Magnetic>
-                <Magnetic distance={0.3}>
-                    <a href="https://www.linkedin.com/in/omkar-sinare-4aaab8229/" target="_blank" rel="noopener noreferrer" className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all backdrop-blur-md ${dark ? "bg-neutral-900/80 border-white/10 text-white hover:border-cyan-500 hover:text-cyan-500" : "bg-neutral-100 border-black/20 text-black hover:border-cyan-600 hover:text-cyan-600"}`}>
-                        <Icons.Linkedin />
-                    </a>
-                </Magnetic>
-                <Magnetic distance={0.3}>
-                    <a href="mailto:omkarsinare0@gmail.com" className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all backdrop-blur-md ${dark ? "bg-neutral-900/80 border-white/10 text-white hover:border-cyan-500 hover:text-cyan-500" : "bg-neutral-100 border-black/20 text-black hover:border-cyan-600 hover:text-cyan-600"}`}>
-                        <Icons.Mail />
-                    </a>
-                </Magnetic>
-                <Magnetic distance={0.3}>
-                    <a href="tel:+918669068591" className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all backdrop-blur-md ${dark ? "bg-neutral-900/80 border-white/10 text-white hover:border-cyan-500 hover:text-cyan-500" : "bg-neutral-100 border-black/20 text-black hover:border-cyan-600 hover:text-cyan-600"}`}>
-                        <Icons.Phone />
-                    </a>
-                </Magnetic>
-            </div>
-
-            {/* HOME BUTTON */}
-            <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">
-                <Magnetic distance={0.3}>
-                    <button aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 shadow-2xl transition-all ${dark ? "bg-neutral-900 border-white/20 text-cyan-500 hover:border-cyan-500" : "bg-neutral-100 border-black/20 text-cyan-600 hover:border-cyan-600"}`}>
-                        <Icons.Home />
-                    </button>
-                </Magnetic>
-            </div>
-
-            {/* TOGGLE BUTTON */}
-            <div className="fixed top-6 right-6 z-50 flex items-center" style={{ height: '44px' }}>
-                <Magnetic distance={0.2}>
-                    <button onClick={() => setDark(!dark)} className={`h-11 px-4 md:px-6 rounded-full border text-[9px] md:text-[10px] tracking-widest uppercase transition-all backdrop-blur-md font-bold flex items-center ${dark ? "border-white/20 text-white hover:bg-white/10" : "border-black/40 text-black hover:bg-black/10"}`}>
-                        {dark ? "Light" : "Dark"}
-                    </button>
-                </Magnetic>
-            </div>
-
-            {/* HERO SECTION */}
-            <section id="home" className="relative w-full max-w-7xl flex flex-col items-center justify-center min-h-[70vh] md:min-h-screen py-10 md:py-20 scroll-mt-24">
-                <div key={dark ? "d" : "l"} className="relative flex items-center justify-center mb-8 md:mb-16">
-                    {/* Energy particles only - appearing from different directions and growing as they approach */}
-                    {[0, 1, 2, 3, 4, 5].map((i) => {
-                        const angle = (i * Math.PI * 2) / 6;
-                        const startDistance = 150;
-                        return (
-                            <motion.div 
-                                key={`particle-${i}`}
-                                className={`absolute w-2 h-2 rounded-full ${dark ? "bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]" : "bg-cyan-600 shadow-[0_0_10px_rgba(8,145,178,0.8)]"}`}
-                                initial={{
-                                    x: Math.cos(angle) * startDistance,
-                                    y: Math.sin(angle) * startDistance,
-                                    opacity: 0,
-                                    scale: 0.5
-                                }}
-                                animate={{
-                                    x: [Math.cos(angle) * startDistance, 0, 0],
-                                    y: [Math.sin(angle) * startDistance, 0, 0],
-                                    opacity: [0, 1, 0],
-                                    scale: [0.5, 2.5, 0]
-                                }}
-                                transition={{
-                                    duration: 8,
-                                    repeat: Infinity,
-                                    delay: i * 1.3,
-                                    times: [0, 0.6, 1],
-                                    ease: [0.21, 0.85, 0.45, 1]
-                                }}
-                            />
-                        );
-                    })}
-                    
-                    {/* Expanding rings */}
-                    {[0, 1, 2].map((i) => (
-                        <motion.div 
-                            key={i} 
-                            className={`absolute rounded-full border-2 ${dark ? "border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "border-black/80 shadow-[0_0_20px_rgba(0,0,0,0.1)]"}`} 
-                            style={{ width: 160, height: 160 }} 
-                            initial={{ scale: 0.5, opacity: 0 }} 
-                            animate={{ 
-                                scale: [0.5, 0.5, 0.6, 1.2, 8],
-                                opacity: [0, 0, dark ? 0.7 : 0.5, dark ? 0.5 : 0.4, 0],
-                                borderWidth: [2, 2, 3, 2, 1]
-                            }} 
-                            transition={{ 
-                                duration: 8, 
-                                repeat: Infinity, 
-                                delay: i * 2.5, 
-                                ease: [0.21, 0.85, 0.45, 1], 
-                                times: [0, 0.05, 0.08, 0.1, 1] 
-                            }} 
-                        />
-                    ))}
-                    
-                    <motion.div whileHover={{ scale: 1.05 }} className="relative z-10">
-                        <div className={`rounded-full p-1 border-2 ${dark ? "border-white/20" : "border-black/20"}`}>
-                             <Image src="/profile.jpg" alt="Omkar Sinare" width={140} height={140} className={`rounded-full object-cover border-4 relative z-20 ${dark ? "border-white" : "border-black"} shadow-2xl md:w-[170px] md:h-[170px]`} priority />
-                        </div>
-                    </motion.div>
-                </div>
-
-                <div className="flex flex-col items-center text-center w-full px-6 z-20">
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} className="tracking-[0.4em] md:tracking-[0.6em] text-[10px] md:text-xs uppercase font-bold mb-4 md:mb-6">Data Analyst & Automation Engineer</motion.p>
-                    
-                    <div className="h-[100px] md:h-[150px] flex items-center justify-center">
-                        <div className="text-lg sm:text-2xl md:text-4xl font-bold max-w-4xl tracking-tight leading-snug">
-                            <Typewriter options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 25 }} onInit={(typewriter) => { typewriter.typeString(`Hi, I'm <span style="color: #06b6d4;">Omkar Sinare</span> <span style="filter: ${emojiFilter}">👋</span>`).pauseFor(1500).deleteAll().typeString(`I build <span style="color: #06b6d4;">Data Engines</span> for 300k+ records <span style="filter: ${emojiFilter}">📊</span>`).pauseFor(1000).deleteAll().typeString(`I detect Cyber Attacks with <span style="color: #06b6d4;">Deep Learning</span> <span style="filter: ${emojiFilter}">🛡️</span>`).pauseFor(1000).deleteAll().typeString(`I save teams <span style="color: #06b6d4;">40% effort</span> through automation <span style="filter: ${emojiFilter}">⚡</span>`).pauseFor(1000).deleteAll().typeString(`Driven by data and a <span style="color: #06b6d4;">Cappuccino</span> <span style="filter: ${emojiFilter}">☕</span>`).pauseFor(1000).deleteAll().typeString(`<span style="filter: ${emojiFilter}">🏊‍♂️</span> Water feels like <span style="color: #06b6d4;">home</span>`).pauseFor(2000).start(); }} />
-                        </div>
-                    </div>
-                    
-                    <nav className="flex flex-wrap justify-center gap-3 md:gap-8 mt-10 md:mt-24">
-                        {["ABOUT", "EXPERIENCE", "SKILLS", "PROJECTS", "CONTACT"].map((item) => (
-                            <Magnetic key={item} distance={0.25}>
-                                <a href={`#${item.toLowerCase()}`}>
-                                    <button 
-                                        className={`px-4 py-2 md:px-7 md:py-2.5 rounded-full border text-[8px] md:text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 backdrop-blur-md relative overflow-hidden group
-                                            ${dark 
-                                                ? "border-white/10 text-white bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.03)] hover:border-cyan-500/50" 
-                                                : "border-black/10 text-black bg-black/5 shadow-[0_0_15px_rgba(0,0,0,0.03)] hover:border-cyan-600/50"
-                                            } ${activeSection === item.toLowerCase() ? "border-cyan-500/80 !text-cyan-400" : ""}`}
-                                    >
-                                        <span className="relative z-10 group-hover:text-cyan-500 transition-colors duration-300">{item}</span>
-                                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${dark ? "bg-cyan-500/5" : "bg-cyan-600/5"}`} />
-                                    </button>
-                                </a>
-                            </Magnetic>
-                        ))}
-                    </nav>
-                </div>
-            </section>
-
-            {/* CONTENT WRAPPER */}
-            <div className="w-full max-w-5xl px-6 space-y-24 md:space-y-60 py-10 md:py-40 relative z-20">
-
-                {/* SUMMARY SECTION */}
-                <section id="about" className="scroll-mt-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
-                    <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="md:pr-12">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6 italic transition-colors">Summary</h2>
-                        <p className="text-base md:text-xl leading-relaxed opacity-70 font-medium">I am a Data Engineer and Automation Specialist dedicated to solving operational bottlenecks. From processing 300k+ row datasets to building custom "AI-like" fuzzy matching engines, I transform manual chaos into scalable, automated systems.</p>
-                    </motion.div>
-                    
-                    <div className="flex flex-row gap-8 md:gap-16 justify-between md:justify-end items-start md:pt-20">
-                        <div className="flex flex-col">
-                            <span className="text-3xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={300000} suffix="+" /></span>
-                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Rows Handled</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-3xl sm:text-5xl md:text-7xl font-bold text-cyan-500"><Counter value={40} suffix="%" /></span>
-                            <span className="text-[10px] uppercase tracking-widest opacity-40 mt-3 font-bold whitespace-nowrap">Manual Effort Saved</span>
-                        </div>
-                    </div>
-                </section>
-
-                {/* EXPERIENCE SECTION */}
-                <section id="experience" className="scroll-mt-24">
-                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'experience' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Experience</h2>
-                    <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-                        {[
-                            {
-                                role: "Data Analyst L1",
-                                company: "Open Links Foundation",
-                                logo: "https://www.openlinksfoundation.org/images/openlinksFoundationsLogo.png",
-                                period: "Dec 2024 - Present",
-                                points: ["Built automated Exam Pipeline.", "Developed Fuzzy Matching engine.", "Architected Scholarship Dashboards."]
-                            },
-                            {
-                                role: "Java dev. Intern",
-                                company: "TechnoHacks Edutech",
-                                logo: "https://technohacks.co.in/wp-content/uploads/2024/08/cropped-png-transperant-Copy-1.png",
-                                period: "Oct 2023 - Dec 2023",
-                                points: ["Developed GUI-based ATM simulations.", "Applied OOP principles for tools."]
-                            }
-                        ].map((exp, idx) => (
-                            <motion.div key={idx} whileHover={{ y: -8 }} className={`p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border ${dark ? "bg-neutral-900 border-white/10" : "bg-neutral-50 border-black/5"} shadow-xl transition-all`}>
-                                <div className="flex flex-col items-start gap-4 md:gap-6">
-                                    <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center p-3 bg-white overflow-hidden shadow-md">
-                                        <img src={exp.logo} alt={exp.company} className="w-full h-auto object-contain" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl md:text-2xl font-bold leading-tight">{exp.role}</h3>
-                                        <p className="text-cyan-500 font-bold text-xs md:text-sm mt-1 uppercase tracking-widest">{exp.company}</p>
-                                    </div>
-                                    <div className="space-y-4 pt-6 border-t w-full border-white/10 text-sm md:text-base opacity-60 leading-relaxed">
-                                        <p className="text-[9px] md:text-[10px] font-black tracking-widest uppercase opacity-40">{exp.period}</p>
-                                        <ul className="space-y-3">
-                                            {exp.points.map((p, i) => <li key={i}>• {p}</li>)}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* SKILLS SECTION */}
-                <section id="skills" className="scroll-mt-24">
-                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 text-center font-bold transition-all ${activeSection === 'skills' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Skills</h2>
-                    <div className="flex flex-wrap justify-center gap-4 md:gap-10 max-w-4xl mx-auto">
-                        {skills.map((skill) => (
-                            <Magnetic key={skill.name} distance={0.3}>
-                                <div className="relative group">
-                                    <motion.div whileHover={{ scale: 1.1 }} className={`w-16 h-16 md:w-24 md:h-24 rounded-full border flex items-center justify-center p-4 md:p-5 transition-all duration-500 ${dark ? "border-white/10 bg-neutral-900/50 hover:border-cyan-500/50" : "border-black/10 bg-neutral-50 hover:border-cyan-500/50"}`}>
-                                        <img src={skill.icon} alt={skill.name} className={`w-8 h-8 md:w-12 md:h-12 object-contain transition-all ${dark ? "grayscale group-hover:grayscale-0" : ""}`} />
-                                    </motion.div>
-                                    <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50">
-                                        <div className="bg-cyan-600 text-white px-3 py-2 rounded-xl shadow-2xl flex flex-col items-center min-w-[90px] md:min-w-[110px] relative">
-                                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">{skill.name}</span>
-                                            <span className="text-[7px] md:text-[8px] font-bold opacity-80 uppercase tracking-tighter">{skill.level}</span>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-cyan-600 rotate-45" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </Magnetic>
-                        ))}
-                    </div>
-                </section>
-
-                {/* PROJECTS SECTION */}
-                <section id="projects" className="scroll-mt-24">
-                    <h2 className={`text-[10px] tracking-[1em] uppercase mb-12 md:mb-16 text-center font-bold transition-all ${activeSection === 'projects' ? 'text-cyan-500 title-glow-cyan' : 'opacity-30'}`}>Featured Projects</h2>
-                    <div className="space-y-8 md:space-y-12">
-                        {projectData.map((proj, idx) => (
-                            <ProjectCard key={idx} project={proj} dark={dark} />
-                        ))}
-                    </div>
-                </section>
-
-                {/* CONTACT SECTION */}
-                <section id="contact" className="scroll-mt-24">
-                    <h2 className={`text-3xl md:text-6xl font-extrabold mb-10 md:mb-12 leading-tight transition-all`}>
-                        I've got just what you need. <br />
-                        <span className="text-cyan-500 underline decoration-cyan-500 underline-offset-8">Let's talk.</span>
-                    </h2>
-                    
-                    <div className="grid md:grid-cols-2 gap-12 md:gap-24">
-                        {/* LEFT COLUMN: LINKS */}
-                        <div className="space-y-6 md:space-y-12">
-                            {[
-                                { 
-                                    icon: <Icons.Mail />, 
-                                    val: "omkarsinare0@gmail.com", 
-                                    href: "mailto:omkarsinare0@gmail.com" 
-                                },
-                                { 
-                                    icon: <Icons.Linkedin />, 
-                                    val: "linkedin.com/in/omkarsinare", 
-                                    href: "https://www.linkedin.com/in/omkar-sinare-4aaab8229/" 
-                                },
-                                { 
-                                    icon: <Icons.MapPin />, 
-                                    val: "Pune, Maharashtra", 
-                                    href: "https://maps.google.com" 
-                                }
-                            ].map((c, idx) => (
-                                <a 
-                                    key={idx} 
-                                    href={c.href} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    className="flex items-center gap-4 md:gap-6 group cursor-pointer w-fit"
-                                >
-                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-cyan-500/20 flex items-center justify-center text-cyan-500 transition-all group-hover:border-cyan-500 group-hover:bg-cyan-500/5">
-                                        {c.icon}
-                                    </div>
-                                    <span className="text-base md:text-xl opacity-60 group-hover:opacity-100 group-hover:text-cyan-400 transition-all font-medium">
-                                        {c.val}
-                                    </span>
-                                </a>
-                            ))}
-                        </div>
-
-                        {/* RIGHT COLUMN: FORM */}
-                        <form 
-                            action="https://formspree.io/f/xlgoqjpa" 
-                            method="POST" 
-                            className="space-y-4 md:space-y-5"
-                        >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-                                <input 
-                                    type="text" 
-                                    name="name"
-                                    placeholder="Name" 
-                                    required
-                                    className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} 
-                                />
-                                <input 
-                                    type="email" 
-                                    name="email"
-                                    placeholder="Email" 
-                                    required
-                                    className={`p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm w-full`} 
-                                />
-                            </div>
-                            <textarea 
-                                name="message"
-                                placeholder="Message" 
-                                rows={5} 
-                                required
-                                className={`w-full p-4 md:p-5 rounded-2xl border ${dark ? "bg-neutral-900 border-white/10 text-white" : "bg-neutral-50 border-black/10 text-black"} outline-none focus:border-cyan-500 transition-all text-sm resize-none`} 
-                            />
-                            <button 
-                                type="submit" 
-                                className="w-full py-4 md:py-5 rounded-2xl bg-cyan-600 text-white font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-cyan-500 transition-all active:scale-[0.98] shadow-lg shadow-cyan-900/20"
-                            >
-                                Send Message <Icons.Send />
-                            </button>
-                        </form>
-                    </div>
-                </section>
-            </div>
-
-            <footer className="w-full py-10 md:py-24 text-center border-t border-white/5 mt-10 md:mt-20">
-                <p className="opacity-20 text-[9px] md:text-xs tracking-[1em] uppercase font-bold px-4">Omkar Sinare • Pune, Maharashtra</p>
-            </footer>
-        </main>
+  // Section tracking
+  useEffect(() => {
+    const sections = document.querySelectorAll("section[id]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); });
+      },
+      { threshold: 0.3, rootMargin: "-10% 0px -50% 0px" }
     );
+    sections.forEach((s) => observer.observe(s));
+    return () => sections.forEach((s) => observer.unobserve(s));
+  }, []);
+
+  // Theme CSS vars
+  const bg = dark ? "#0A0A0A" : "#F7F7F5";
+  const fg = dark ? "#F2F2F2" : "#111111";
+  const accent = dark ? "#7B9CF4" : "#3A6BDB";
+  const muted = dark ? "rgba(242,242,242,0.45)" : "rgba(17,17,17,0.45)";
+  const cardBg = dark ? "#111111" : "#FFFFFF";
+  const borderCol = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+
+  const navItems = ["About", "Experience", "Skills", "Projects", "Contact"];
+
+  const projectData = [
+    {
+      title: "Cyber Attack Detection System",
+      desc: "Real-time intrusion detection using a hybrid Random Forest + CNN pipeline, optimized for low-latency threat classification.",
+      tags: ["ML/DL", "Python", "Cybersecurity"],
+      hasArchitecture: true,
+      details: [
+        "Hybrid framework: Random Forest and XGBoost for tabular classification, CNN for spatial pattern recognition across network traffic.",
+        "Feature engineering and PCA-based dimensionality reduction to isolate the 10 highest-signal features, cutting inference latency.",
+        "Achieved high-precision real-time monitoring with optimized model efficiency suitable for live deployment.",
+      ],
+      img1: "/cyber-arch-2.png",
+      img2: "/cyber-arch-1.png",
+    },
+    {
+      title: "Vinoba Platform — Data & Automation",
+      desc: "End-to-end data engineering suite handling 300,000+ rows, reducing manual processing time by 80% across scholarship and exam pipelines.",
+      tags: ["Python", "Streamlit", "Apps Script"],
+      hasArchitecture: false,
+      details: [
+        "Scholarship Data Tool: Python + Streamlit pipeline processes 300k+ rows in minutes, replacing brittle Excel-based workflows entirely.",
+        "Intelligent Name Matching: Token-based fuzzy matching engine in Google Apps Script, outperforming VLOOKUP and reducing manual effort by 40%.",
+        "End-to-End Exam System: Designed centralized system for center allocation, roll number generation, and digital admit card delivery.",
+      ],
+    },
+  ];
+
+  return (
+    <main
+      style={{ background: bg, color: fg }}
+      className="transition-colors duration-500 min-h-screen font-sans overflow-x-hidden"
+    >
+      {/* ─── SUBTLE AMBIENT BG: single static gradient, no animation ─── */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background: dark
+            ? "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(91,142,240,0.07) 0%, transparent 70%)"
+            : "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(58,107,219,0.05) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* ─── HEADER / NAV ─── */}
+      <header
+        style={{
+          background: scrolled ? (dark ? "rgba(10,10,10,0.85)" : "rgba(247,247,245,0.85)") : "transparent",
+          borderBottom: scrolled ? `1px solid ${borderCol}` : "1px solid transparent",
+          backdropFilter: scrolled ? "blur(12px)" : "none",
+        }}
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      >
+        <div className="max-w-6xl mx-auto px-5 md:px-10 h-14 flex items-center justify-between">
+          {/* Logo / name */}
+          <a
+            href="#home"
+            className="text-sm font-semibold tracking-tight"
+            style={{ color: fg }}
+          >
+            Omkar<span style={{ color: accent }}>.</span>
+          </a>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                className="px-4 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all duration-200"
+                style={{
+                  color: activeSection === item.toLowerCase() ? accent : muted,
+                  background: activeSection === item.toLowerCase() ? (dark ? "rgba(123,156,244,0.1)" : "rgba(58,107,219,0.08)") : "transparent",
+                }}
+              >
+                {item}
+              </a>
+            ))}
+          </nav>
+
+          {/* Right controls */}
+          <div className="flex items-center gap-2">
+            {/* Social icons — top right on mobile, shown inline with nav on desktop */}
+            <div className="flex items-center gap-1">
+              {[
+                { icon: <Icons.Github />, href: "https://github.com/omkarsinare/Portfolio", label: "GitHub" },
+                { icon: <Icons.Linkedin />, href: "https://www.linkedin.com/in/omkar-sinare-4aaab8229/", label: "LinkedIn" },
+              ].map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                  style={{ color: muted }}
+                  onMouseEnter={e => (e.currentTarget.style.color = accent)}
+                  onMouseLeave={e => (e.currentTarget.style.color = muted)}
+                >
+                  {s.icon}
+                </a>
+              ))}
+            </div>
+
+            {/* Theme toggle */}
+            <button
+              onClick={() => setDark(!dark)}
+              className="h-8 px-3 rounded-full border text-[10px] font-semibold tracking-widest uppercase transition-all"
+              style={{ borderColor: borderCol, color: muted }}
+            >
+              {dark ? "Light" : "Dark"}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ─── HERO ─── */}
+      <section
+        id="home"
+        className="relative z-10 min-h-screen flex flex-col justify-center pt-24 pb-16 px-5 md:px-10 max-w-6xl mx-auto"
+      >
+        <div className="flex flex-col items-start max-w-3xl">
+          {/* Available badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center gap-2 mb-10"
+          >
+            <span
+              className="inline-block w-2 h-2 rounded-full"
+              style={{ background: "#4ADE80", boxShadow: "0 0 6px #4ADE80" }}
+            />
+            <span className="text-xs font-medium tracking-wide" style={{ color: muted }}>
+              Available for opportunities
+            </span>
+          </motion.div>
+
+          {/* Avatar + name row */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="flex items-center gap-4 mb-8"
+          >
+            <div
+              className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 shrink-0"
+              style={{ borderColor: borderCol }}
+            >
+              <Image
+                src="/profile.jpg"
+                alt="Omkar Sinare"
+                width={64}
+                height={64}
+                className="object-cover w-full h-full"
+                priority
+              />
+            </div>
+            <div>
+              <p className="text-sm font-medium" style={{ color: muted }}>
+                Omkar Sinare
+              </p>
+              <p className="text-xs" style={{ color: muted, opacity: 0.6 }}>
+                Pune, Maharashtra
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-[2.6rem] sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] mb-6"
+          >
+            Data Engineer.{" "}
+            <span style={{ color: accent }}>Automation</span> Specialist.
+          </motion.h1>
+
+          {/* Typewriter subtitle */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="text-base md:text-lg font-medium mb-10 h-8"
+            style={{ color: muted }}
+          >
+            <Typewriter
+              options={{ autoStart: true, loop: true, delay: 40, deleteSpeed: 20 }}
+              onInit={(t) => {
+                t
+                  .typeString("Processing 300k+ rows with Python & Streamlit")
+                  .pauseFor(1800)
+                  .deleteAll(10)
+                  .typeString("Detecting cyber threats with Deep Learning")
+                  .pauseFor(1800)
+                  .deleteAll(10)
+                  .typeString("Cutting manual effort by 40% through automation")
+                  .pauseFor(1800)
+                  .deleteAll(10)
+                  .start();
+              }}
+            />
+          </motion.div>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.55 }}
+            className="flex flex-wrap gap-3"
+          >
+            <Magnetic>
+              <a
+                href="#contact"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold transition-all"
+                style={{ background: accent, color: "#fff" }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >
+                Get in touch
+              </a>
+            </Magnetic>
+            <Magnetic>
+              <a
+                href="#projects"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold transition-all border"
+                style={{ borderColor: borderCol, color: fg }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = accent)}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = borderCol)}
+              >
+                View work
+              </a>
+            </Magnetic>
+          </motion.div>
+        </div>
+
+        {/* Scroll hint */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          style={{ color: muted, opacity: 0.4 }}
+        >
+          <motion.div
+            animate={{ y: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+          >
+            <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+              <rect x="1" y="1" width="14" height="18" rx="7" stroke="currentColor" strokeWidth="1.5"/>
+              <motion.rect
+                x="6.5" y="4" width="3" height="5" rx="1.5"
+                fill="currentColor"
+                animate={{ y: [0, 4, 0] }}
+                transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+              />
+            </svg>
+          </motion.div>
+          <span className="text-[9px] tracking-widest uppercase font-medium">Scroll</span>
+        </motion.div>
+      </section>
+
+      {/* ─── CONTENT ─── */}
+      <div className="relative z-10 max-w-6xl mx-auto px-5 md:px-10">
+
+        {/* Divider */}
+        <div className="h-px w-full mb-24 md:mb-32" style={{ background: borderCol }} />
+
+        {/* ─── ABOUT ─── */}
+        <section id="about" className="scroll-mt-20 mb-24 md:mb-36">
+          <FadeIn>
+            <p className="text-[10px] font-semibold tracking-[0.25em] uppercase mb-8" style={{ color: accent }}>
+              About
+            </p>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-5 gap-10 md:gap-16 items-start">
+            <FadeIn delay={0.1} className="md:col-span-3">
+              <h2 className="text-2xl md:text-4xl font-semibold tracking-tight leading-snug mb-6">
+                I turn data chaos into{" "}
+                <span style={{ color: accent }}>scalable systems</span>.
+              </h2>
+              <p className="text-sm md:text-base leading-relaxed" style={{ color: muted }}>
+                I'm a Data Engineer and Automation Specialist focused on solving real operational bottlenecks. From processing 300k+ row datasets to building custom fuzzy matching engines, I transform manual chaos into reliable, automated workflows that teams actually use.
+              </p>
+            </FadeIn>
+
+            {/* Stats */}
+            <FadeIn delay={0.2} className="md:col-span-2">
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { val: 300000, suf: "+", label: "Rows Handled" },
+                  { val: 40, suf: "%", label: "Effort Saved" },
+                  { val: 2, suf: "+", label: "Years Building" },
+                  { val: 5, suf: "+", label: "Tools Shipped" },
+                ].map((s, i) => (
+                  <div
+                    key={i}
+                    className="p-5 rounded-2xl border"
+                    style={{ background: cardBg, borderColor: borderCol }}
+                  >
+                    <p className="text-2xl md:text-3xl font-bold mb-1" style={{ color: accent }}>
+                      <Counter value={s.val} suffix={s.suf} />
+                    </p>
+                    <p className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: muted }}>
+                      {s.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </FadeIn>
+          </div>
+        </section>
+
+        {/* ─── EXPERIENCE ─── */}
+        <section id="experience" className="scroll-mt-20 mb-24 md:mb-36">
+          <FadeIn>
+            <p className="text-[10px] font-semibold tracking-[0.25em] uppercase mb-10" style={{ color: accent }}>
+              Experience
+            </p>
+          </FadeIn>
+
+          <div className="space-y-4">
+            {[
+              {
+                role: "Data Analyst L1",
+                company: "Open Links Foundation",
+                logo: "https://www.openlinksfoundation.org/images/openlinksFoundationsLogo.png",
+                period: "Dec 2024 – Present",
+                type: "Full-time",
+                points: [
+                  "Built automated exam pipeline covering center allocation, roll numbers, and admit cards.",
+                  "Developed token-based fuzzy matching engine reducing manual lookup effort by 40%.",
+                  "Architected Streamlit scholarship dashboards processing 300k+ records.",
+                ],
+              },
+              {
+                role: "Java Developer Intern",
+                company: "TechnoHacks Edutech",
+                logo: "https://technohacks.co.in/wp-content/uploads/2024/08/cropped-png-transperant-Copy-1.png",
+                period: "Oct 2023 – Dec 2023",
+                type: "Internship",
+                points: [
+                  "Developed GUI-based ATM simulation with full transaction lifecycle.",
+                  "Applied OOP patterns across multiple tooling projects.",
+                ],
+              },
+            ].map((exp, idx) => (
+              <FadeIn key={idx} delay={idx * 0.1}>
+                <div
+                  className="p-6 md:p-8 rounded-2xl border transition-all duration-200"
+                  style={{ background: cardBg, borderColor: borderCol }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = dark ? "rgba(123,156,244,0.25)" : "rgba(58,107,219,0.25)")}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = borderCol)}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-5">
+                    {/* Logo */}
+                    <div className="w-12 h-12 rounded-xl bg-white border border-black/8 flex items-center justify-center p-2 shrink-0">
+                      <img src={exp.logo} alt={exp.company} className="w-full h-auto object-contain" />
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-1">
+                        <h3 className="text-base font-semibold">{exp.role}</h3>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span
+                            className="text-[9px] px-2 py-0.5 rounded-full font-semibold tracking-wider uppercase"
+                            style={{ background: dark ? "rgba(123,156,244,0.1)" : "rgba(58,107,219,0.08)", color: accent }}
+                          >
+                            {exp.type}
+                          </span>
+                          <span className="text-[10px] font-medium" style={{ color: muted }}>
+                            {exp.period}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-xs font-semibold mb-4" style={{ color: accent }}>
+                        {exp.company}
+                      </p>
+                      <ul className="space-y-2">
+                        {exp.points.map((p, i) => (
+                          <li key={i} className="flex gap-3 text-sm" style={{ color: muted }}>
+                            <span className="mt-1.5 w-1 h-1 rounded-full shrink-0" style={{ background: accent }} />
+                            {p}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </section>
+
+        {/* ─── SKILLS ─── */}
+        <section id="skills" className="scroll-mt-20 mb-24 md:mb-36">
+          <FadeIn>
+            <p className="text-[10px] font-semibold tracking-[0.25em] uppercase mb-10" style={{ color: accent }}>
+              Skills
+            </p>
+          </FadeIn>
+
+          <FadeIn delay={0.1}>
+            <div className="flex flex-wrap gap-3 md:gap-4">
+              {skills.map((skill, i) => (
+                <Magnetic key={skill.name} distance={0.25}>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35, delay: i * 0.04 }}
+                    className="group flex items-center gap-2.5 px-4 py-2.5 rounded-xl border cursor-default transition-all duration-200"
+                    style={{ background: cardBg, borderColor: borderCol }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = dark ? "rgba(123,156,244,0.3)" : "rgba(58,107,219,0.3)";
+                      e.currentTarget.style.background = dark ? "rgba(123,156,244,0.05)" : "rgba(58,107,219,0.04)";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = borderCol;
+                      e.currentTarget.style.background = cardBg;
+                    }}
+                  >
+                    <img
+                      src={skill.icon}
+                      alt={skill.name}
+                      className="w-5 h-5 object-contain transition-all"
+                      style={{ filter: dark ? "grayscale(0.4) brightness(0.9)" : "none" }}
+                    />
+                    <span className="text-xs font-semibold">{skill.name}</span>
+                    <span
+                      className="text-[9px] font-medium ml-0.5"
+                      style={{ color: muted, opacity: 0.6 }}
+                    >
+                      {skill.level}
+                    </span>
+                  </motion.div>
+                </Magnetic>
+              ))}
+            </div>
+          </FadeIn>
+        </section>
+
+        {/* ─── PROJECTS ─── */}
+        <section id="projects" className="scroll-mt-20 mb-24 md:mb-36">
+          <FadeIn>
+            <p className="text-[10px] font-semibold tracking-[0.25em] uppercase mb-10" style={{ color: accent }}>
+              Featured Projects
+            </p>
+          </FadeIn>
+
+          <div className="space-y-5">
+            {projectData.map((proj, idx) => (
+              <ProjectCard key={idx} project={proj} dark={dark} index={idx} />
+            ))}
+          </div>
+        </section>
+
+        {/* ─── CONTACT ─── */}
+        <section id="contact" className="scroll-mt-20 mb-20 md:mb-28">
+          <FadeIn>
+            <p className="text-[10px] font-semibold tracking-[0.25em] uppercase mb-8" style={{ color: accent }}>
+              Contact
+            </p>
+            <h2 className="text-2xl md:text-5xl font-bold tracking-tight leading-snug mb-12 max-w-xl">
+              Have a project in mind?{" "}
+              <span style={{ color: accent }}>Let's talk.</span>
+            </h2>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16">
+            {/* Left: links */}
+            <FadeIn delay={0.1} className="space-y-5">
+              {[
+                { icon: <Icons.Mail />, val: "omkarsinare0@gmail.com", href: "mailto:omkarsinare0@gmail.com" },
+                { icon: <Icons.Linkedin />, val: "linkedin.com/in/omkarsinare", href: "https://www.linkedin.com/in/omkar-sinare-4aaab8229/" },
+                { icon: <Icons.Phone />, val: "+91 86690 68591", href: "tel:+918669068591" },
+                { icon: <Icons.MapPin />, val: "Pune, Maharashtra, India", href: "https://maps.google.com/?q=Pune" },
+              ].map((c, i) => (
+                <a
+                  key={i}
+                  href={c.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 group"
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 transition-all"
+                    style={{ borderColor: borderCol, color: muted }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = accent;
+                      e.currentTarget.style.color = accent;
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = borderCol;
+                      e.currentTarget.style.color = muted;
+                    }}
+                  >
+                    {c.icon}
+                  </div>
+                  <span
+                    className="text-sm font-medium transition-colors"
+                    style={{ color: muted }}
+                    onMouseEnter={e => (e.currentTarget.style.color = fg)}
+                    onMouseLeave={e => (e.currentTarget.style.color = muted)}
+                  >
+                    {c.val}
+                  </span>
+                </a>
+              ))}
+            </FadeIn>
+
+            {/* Right: form */}
+            <FadeIn delay={0.2}>
+              <form
+                action="https://formspree.io/f/xlgoqjpa"
+                method="POST"
+                className="space-y-3"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Name"
+                    required
+                    className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
+                    style={{
+                      background: cardBg,
+                      borderColor: borderCol,
+                      color: fg,
+                    }}
+                    onFocus={e => (e.currentTarget.style.borderColor = accent)}
+                    onBlur={e => (e.currentTarget.style.borderColor = borderCol)}
+                  />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    required
+                    className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
+                    style={{
+                      background: cardBg,
+                      borderColor: borderCol,
+                      color: fg,
+                    }}
+                    onFocus={e => (e.currentTarget.style.borderColor = accent)}
+                    onBlur={e => (e.currentTarget.style.borderColor = borderCol)}
+                  />
+                </div>
+                <textarea
+                  name="message"
+                  placeholder="Tell me about your project…"
+                  rows={5}
+                  required
+                  className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all resize-none"
+                  style={{
+                    background: cardBg,
+                    borderColor: borderCol,
+                    color: fg,
+                  }}
+                  onFocus={e => (e.currentTarget.style.borderColor = accent)}
+                  onBlur={e => (e.currentTarget.style.borderColor = borderCol)}
+                />
+                <button
+                  type="submit"
+                  className="w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
+                  style={{ background: accent, color: "#fff" }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                >
+                  Send Message <Icons.Send />
+                </button>
+              </form>
+            </FadeIn>
+          </div>
+        </section>
+      </div>
+
+      {/* ─── FOOTER ─── */}
+      <footer
+        className="border-t py-8 px-5 md:px-10"
+        style={{ borderColor: borderCol }}
+      >
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-[11px] font-medium" style={{ color: muted, opacity: 0.5 }}>
+            © 2025 Omkar Sinare · Pune, Maharashtra
+          </p>
+          <Magnetic>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              aria-label="Back to top"
+              className="w-9 h-9 rounded-full border flex items-center justify-center transition-all"
+              style={{ borderColor: borderCol, color: muted }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = accent;
+                e.currentTarget.style.color = accent;
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = borderCol;
+                e.currentTarget.style.color = muted;
+              }}
+            >
+              <Icons.ArrowUp />
+            </button>
+          </Magnetic>
+        </div>
+      </footer>
+    </main>
+  );
 }
